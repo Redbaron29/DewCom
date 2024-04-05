@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9fe2bf">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/discoveredDeviceCountCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="top|center">
+        <TextView
+            android:id="@+id/discoveredDeviceCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="21sp"
+            android:text="Discovered Devices: "
+            android:padding="8dp"
+            android:textColor="#000"/>
+    </com.google.android.material.card.MaterialCardView>
+
+   <!-- <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <Button
+            android:id="@+id/dew_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/button_style"
+            android:layout_gravity="center"
+            android:text="Click here to activate Dew Mode"
+            android:visibility="visible"/>
+    </LinearLayout> -->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/sideImageText1"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="172dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:scrollbars="vertical"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/sideImageText2"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText1"/>
+    <TextView
+        android:id="@+id/sideImageText3"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText2" />
+    <TextView
+        android:id="@+id/sideImageText4"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText3" />
+    <TextView
+        android:id="@+id/sideImageText5"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText4" />
+    <TextView
+        android:id="@+id/sideImageText6"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText5" />
+    <TextView
+        android:id="@+id/sideImageText7"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText6" />
+    <TextView
+        android:id="@+id/sideImageText8"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText7" />
+    <TextView
+        android:id="@+id/sideImageText9"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText8" />
+    <TextView
+        android:id="@+id/sideImageText10"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText9" />
+    <TextView
+        android:id="@+id/sideImageText11"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText10" />
+    <TextView
+        android:id="@+id/sideImageText12"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sideImageText11" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/pairedDeviceCountCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_below="@+id/discoveredDeviceCountCard"
+        android:layout_gravity="bottom|center">
+        <TextView
+            android:id="@+id/pairedDeviceCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="21sp"
+            android:text="Paired Devices: "
+            android:padding="8dp"
+            android:textColor="#000"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/navigateTexting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="returnToMain"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:visibility="gone"
+            android:src="@drawable/ic_arrow_right"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9fe2bf"
+    tools:context=".MainActivity">
+
+    <include layout="@layout/main_content" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:justifyContent="space_around"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="makeMessage"
+            android:text="@string/send"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="dewMode"
+            android:text="Dew It"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="clear"
+            android:text="@string/clear"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="showMessages"
+            android:text="@string/inbox"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="showSentMessages"
+            android:text="@string/outbox" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
