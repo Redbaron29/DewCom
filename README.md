@@ -1,7 +1,7 @@
-Welcome to DewCom - a no-frills, Bluetooth mesh messenger Android application based on naishadh14's DisCom(https://github.com/naishadh14/Discom).
+Welcome to DewSTC - a no-frills, Bluetooth mesh messenger Android application based on naishadh14's DisCom(https://github.com/naishadh14/Discom).
 
-DewCom functions as a prototype disaster-resilient messenger application which holds not only the user's messages, but also any other user's.
-Based on the principles of dew computing, DewCom provides users the chance to send and relay messages when they are connected, and store messages during periods of limited connectivity.
+DewSTC functions as a prototype disaster-resilient messenger application which holds not only the user's messages, but also any other user's.
+Based on the principles of dew computing, DewSTC provides users the chance to send and relay messages when they are connected, and store messages during periods of limited connectivity.
 The principles of Independance and Collaboration are key in the proper functioning of this application.
 
 To begin, ensure your Bluetooth and location services are enabled. If not, the app will prompt them. 
