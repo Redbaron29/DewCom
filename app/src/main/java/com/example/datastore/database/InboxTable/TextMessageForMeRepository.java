@@ -147,4 +147,7 @@ public class TextMessageForMeRepository {
     public LiveData<TextMessageForMe> getMessageByTimestamp(String x){
         return mTextMessageForMeDao.getMessageByTimestamp(x);
     }
+    TextMessageForMe searchForTimestamp(String x){
+        return mTextMessageForMeDao.searchForTimestamp(x);
+    }
 }

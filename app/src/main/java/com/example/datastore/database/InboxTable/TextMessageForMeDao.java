@@ -58,4 +58,7 @@ public interface TextMessageForMeDao {
     LiveData<List<TextMessageForMe>> searchTimes(String searchTimestamp);
     @Query("SELECT * FROM messages_for_me WHERE Timestamp = :thisTimestamp")
     LiveData<TextMessageForMe> getMessageByTimestamp(String thisTimestamp);
+
+    @Query("SELECT * FROM messages_for_me WHERE Timestamp LIKE :searchTimestamp")
+    TextMessageForMe searchForTimestamp(String searchTimestamp);
 }

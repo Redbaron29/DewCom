@@ -29,6 +29,8 @@ import com.example.datastore.database.PhoneNumberTable.Number;
 import com.example.datastore.database.PhoneNumberTable.NumberDao;
 import com.example.datastore.database.OutboxTable.TextMessage;
 import com.example.datastore.database.OutboxTable.TextMessageDao;
+import com.example.datastore.database.ReceivedTable.ReceivedMessage;
+import com.example.datastore.database.ReceivedTable.ReceivedMessageDao;
 
 /**
  * RoomDatabase. Includes code to create the database.
@@ -36,12 +38,14 @@ import com.example.datastore.database.OutboxTable.TextMessageDao;
  * with it happen through the ViewModels.
  */
 
-@Database(entities = {Number.class, TextMessage.class, TextMessageForMe.class}, version = 2, exportSchema = false)
+@Database(entities = {Number.class, TextMessage.class, TextMessageForMe.class, ReceivedMessage.class}, version = 2, exportSchema = false)
 public abstract class RoomDatabase extends androidx.room.RoomDatabase {
 
     public abstract NumberDao numberDao();
     public abstract TextMessageDao messageDao();
     public abstract TextMessageForMeDao messageForMeDao();
+    public abstract ReceivedMessageDao receivedMessageDao();
+
     private static RoomDatabase INSTANCE;
     public static RoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
@@ -82,17 +86,21 @@ public abstract class RoomDatabase extends androidx.room.RoomDatabase {
         private final NumberDao mNumberDao;
         private final TextMessageDao mTextMessageDao;
         private final TextMessageForMeDao mTextMessageForMeDao;
+        private final ReceivedMessageDao mReceivedMessageDao;
+
 
         // Initial data set
         private static final String [] numbers = {"Enter your number"};
         private static final String [] messages = {};
         private static final String [] timestamps = {};
         private static final String [] messagesForMe = {};
+        private static final String [] receivedMessages = {};
 
         PopulateDbAsync(RoomDatabase db) {
             mNumberDao = db.numberDao();
             mTextMessageDao = db.messageDao();
             mTextMessageForMeDao = db.messageForMeDao();
+            mReceivedMessageDao = db.receivedMessageDao();
         }
 
         @Override
@@ -114,6 +122,12 @@ public abstract class RoomDatabase extends androidx.room.RoomDatabase {
                 for (int i = 0; i <= messagesForMe.length - 1; i++) {
                     TextMessageForMe textMessageForMe = new TextMessageForMe(timestamps[i], messagesForMe[i]);
                     mTextMessageForMeDao.insert(textMessageForMe);
+                }
+            }
+            if (mReceivedMessageDao.getReceivedMessage().length < 1) {
+                for (int i = 0; i <= receivedMessages.length - 1; i++) {
+                    ReceivedMessage receivedMessage = new ReceivedMessage(timestamps[i], receivedMessages[i]);
+                    mReceivedMessageDao.insert(receivedMessage);
                 }
             }
 

@@ -50,8 +50,6 @@ public class TextMessageForMe {
     }
     public String getTextMessageForMe() {return this.mTextMessageForMe;}
     public String getTimestamp() {return this.mTimestamp;}
-
-
     public int getId() {return id;}
     public void setId(int id) {
         this.id = id;

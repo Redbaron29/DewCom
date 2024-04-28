@@ -39,7 +39,7 @@ public class OutboxActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Set up the PairedDeviceViewModel
+        // Set up the TextMessageViewModel
         textMessageViewModel = ViewModelProviders.of(this).get(TextMessageViewModel.class);
         // Get all the messages from the database and associate them to the adapter.
         textMessageViewModel.getAllTextMessages().observe(this, new Observer<List<TextMessage>>() {

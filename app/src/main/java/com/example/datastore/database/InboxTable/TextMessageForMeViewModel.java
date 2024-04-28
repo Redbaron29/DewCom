@@ -65,4 +65,7 @@ public class TextMessageForMeViewModel extends AndroidViewModel {
     public LiveData<TextMessageForMe> getMessageByTimestamp(String timestamp) {
         return mRepositoryForMe.getMessageByTimestamp(timestamp);
     }
+    public TextMessageForMe searchForTimestamp(String x){
+        return mRepositoryForMe.searchForTimestamp(x);
+    }
 }

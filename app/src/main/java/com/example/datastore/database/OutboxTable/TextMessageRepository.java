@@ -19,6 +19,7 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import android.os.AsyncTask;
 
+import com.example.datastore.database.InboxTable.TextMessageForMe;
 import com.example.datastore.database.RoomDatabase;
 
 import java.util.List;
@@ -149,5 +150,9 @@ public class TextMessageRepository {
     }
     public boolean isTableEmpty() {
         return mTextMessageDao.getCount() == 0;
+    }
+
+    TextMessage searchForTimestamp(String x){
+        return mTextMessageDao.searchForTimestamp(x);
     }
 }

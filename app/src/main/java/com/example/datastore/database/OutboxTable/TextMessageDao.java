@@ -22,6 +22,8 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.example.datastore.database.InboxTable.TextMessageForMe;
+
 import java.util.List;
 
 /**
@@ -53,6 +55,8 @@ public interface TextMessageDao {
     LiveData<List<TextMessage>> searchTimes(String searchTimestamp);
     @Query("SELECT * FROM message_table WHERE Timestamp = :thisTimestamp")
     LiveData<TextMessage> getMessageByTimestamp(String thisTimestamp);
+    @Query("SELECT * FROM message_table WHERE Timestamp LIKE :searchTimestamp")
+    TextMessage searchForTimestamp(String searchTimestamp);
     @Query("SELECT COUNT(*) FROM message_table")
     int getCount();
 }

@@ -29,6 +29,9 @@ import com.example.datastore.database.OutboxTable.TextMessageViewModel;
 import com.example.datastore.database.PhoneNumberTable.Number;
 import com.example.datastore.database.PhoneNumberTable.NumberListAdapter;
 import com.example.datastore.database.PhoneNumberTable.NumberViewModel;
+import com.example.datastore.database.ReceivedTable.ReceivedMessage;
+import com.example.datastore.database.ReceivedTable.ReceivedMessageListAdapter;
+import com.example.datastore.database.ReceivedTable.ReceivedMessageViewModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +40,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -50,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<BluetoothDevice> pairedDevices = new ArrayList<>();
     JSONObject jsonObject;
     long selfNumber;
-    boolean startClientBusy = false;
+    //boolean startClientBusy = false;
     public NumberViewModel numberViewModel;
     TextMessageViewModel textMessageViewModel;
     TextMessageForMeViewModel textMessageForMeViewModel;
+    ReceivedMessageViewModel receivedMessageViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         });
         textMessageViewModel = ViewModelProviders.of(this).get(TextMessageViewModel.class);
         textMessageForMeViewModel = ViewModelProviders.of(this).get(TextMessageForMeViewModel.class);
+        receivedMessageViewModel = ViewModelProviders.of(this).get(ReceivedMessageViewModel.class);
         //check if location permission enabled, if not, ask for permission
         Access.checkPermissions(getApplicationContext(), this);
         Toast toast = Toast.makeText(getApplicationContext(), "Click on DEW IT to start detecting and pairing to devices", Toast.LENGTH_LONG);
@@ -171,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
             byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
         }
 
-        //Save it to database
+        //Save it to database X times for redundancy. This means it will send out the message to X different nodes
+        textMessageViewModel.insert(new TextMessage(t, jsonText));
         textMessageViewModel.insert(new TextMessage(t, jsonText));
 
         //Send message out to devices
@@ -258,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
             startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
             return;
         }
-        startClientBusy = true;
         final TextView text = findViewById(R.id.textView11);
         String displayText = "Sending to " + this.pairedDevices.get(deviceNumber).toString() + "\n";
         text.append(displayText);
@@ -312,33 +318,29 @@ public class MainActivity extends AppCompatActivity {
         };
         BluetoothClient bluetoothClient = new BluetoothClient(this.pairedDevices.get(deviceNumber), clientHandler, Constants.UUID_2);
         bluetoothClient.start();
-        startClientBusy = false;
     }
 
     void messageResponse(JSONObject jsonObject, BluetoothDevice receivedDevice) throws JSONException {
         this.selfNumber = Long.parseLong(numberViewModel.getMyNumber().getMyNumber());
         final TextView text = findViewById(R.id.textView11);
         long number = (long) jsonObject.get("Recipient");
+
         //make list of timestamps, if msg already received, drop
         long time = (long) jsonObject.get("Timestamp");
         String t = String.valueOf(time);
 
-        //Check if the timestamp already exists Inbox table
-        if (textMessageForMeViewModel.getMessageByTimestamp(t).toString().equals(t)) {
+        //Check if the timestamp already exists in Received table
+        if (receivedMessageViewModel.searchForTimestamp(t) != null) {
             text.append("Already received, dropping\n");
             return;
         }
-        //Check if the timestamp already exists Outbox table
-        if (textMessageViewModel.getMessageByTimestamp(t).toString().equals(t)) {
-            text.append("Already received, dropping\n");
-            return;
-        }
+        receivedMessageViewModel.insert(new ReceivedMessage(t, jsonObject.toString()));
         //if you are intended recipient, do not broadcast further
         if (Long.toString(number).equals(Long.toString(this.selfNumber))) {
             text.append("You are the intended recipient\n");
             text.append((String) jsonObject.get("Message"));
             text.append("\n");
-            //add received text to my database
+            //add message to Inbox database
             textMessageForMeViewModel.insert(new TextMessageForMe(t, jsonObject.toString()));
             return;
         }
@@ -347,10 +349,9 @@ public class MainActivity extends AppCompatActivity {
         if (Constants.MAX_HOPS == hops + 1) {
             return;
         }
-        //otherwise increment current hops by 1
+        //otherwise increment current hops by 1 and add to Outbox
         jsonObject.put("CurrentHops", hops + 1);
         textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
-
         //broadcast message back to network
         //add check so that it does not broadcast back to original device
         //add lock so that only one copy of startClient is running at any time

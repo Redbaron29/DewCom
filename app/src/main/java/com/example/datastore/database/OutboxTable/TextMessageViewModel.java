@@ -20,6 +20,8 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.datastore.database.InboxTable.TextMessageForMe;
+
 import java.util.List;
 
 /**
@@ -66,5 +68,8 @@ public class TextMessageViewModel extends AndroidViewModel {
     }
     public boolean isTableEmpty() {
         return mRepository.isTableEmpty();
+    }
+    public TextMessage searchForTimestamp(String x){
+        return mRepository.searchForTimestamp(x);
     }
 }
