@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.datastore'
+    namespace 'com.example.dewstc'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.datastore"
+        applicationId "com.example.dewstc"
         minSdk 23
         versionCode 1
         versionName "1.0"

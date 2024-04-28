@@ -42,11 +42,6 @@
             android:label="Outbox">
         </activity>
 
-        <activity android:name=".ReceivedActivity"
-            android:exported="true"
-            android:label="Received">
-        </activity>
-
         <activity android:name=".DiscoverAndConnectActivity"
             android:exported="true">
             <intent-filter>
