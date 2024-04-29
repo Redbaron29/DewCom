@@ -12,22 +12,21 @@ To begin, ensure your Bluetooth and location services are enabled. If not, the a
 ![2](https://github.com/Redbaron29/DewSTC/assets/95047781/f045bcec-9769-4820-a81e-24b4852699b3)
 
 
-Click "Dew it" to begin discovering devices and pairing. Please note that the maximum allowed discoverable time varies by phone. 
+**Please note that the maximum allowed discoverable time varies by phone. 
 The Moto g6 Play phone that was used in the testing phase had a 1hr limit. Then it required re-enabling of this feature
 If no devices are being detected, close the app and restart it.
 
 ![IMG_4686](https://github.com/Redbaron29/DewSTC/assets/95047781/48f664f6-ec4d-4f1e-882a-2546fb149255)
 
 
-Upon finishing the discover process, the activity will immediately and automatically begin pairing to these devices.
+DewSTC initializes immediately upon starting the application and begins advertizing and build an arraylist of paired devices to relay all messages to. The discover and pairing process takes around 2 minutes if in a densely populated area of pairable devices running bluetooth.
 
 ![3](https://github.com/Redbaron29/DewSTC/assets/95047781/048f5baf-8ed2-4afb-9c1c-f4ca0d4b0de7)
 ![4](https://github.com/Redbaron29/DewSTC/assets/95047781/1824712b-2745-45b1-bfa2-4a0ad15da0f9)
 
 
-Once the first device is paired, it should automatically return to the MainActivity with a list of all discovered and paired devices. 
+Once the first device is paired, any pending messages will begin to send off within 2 minutes.
 Please note, even though the DiscoverandConnectActivity has finished, more devices may still pair with yours.
-If for any reason your device shows the "Paired Devices:" with a count of 1 or greater, simply click the arrow button to return to the MainActivity (as seen below in the phone on the right).
 
 ![5](https://github.com/Redbaron29/DewSTC/assets/95047781/511911a8-7f11-4265-8782-b05556c88be5)
 
@@ -41,13 +40,11 @@ Please note, this is just suppose to simulate a user's actual phone number. In t
 Also, note that some 10-digit numbers cause sporadic errors to occur. These typically come from 10 consecutive numbers like 1111111111 or 0000000000. Do not use these.
 
 Once you saved your made-up phone number, type in a 10-digit number for your recipient, and type in a message. Hit send.
-This next process may take some time, as the Bluetooth server is being established and is beginning to connect to the paired devices. 
-This may take up to a minute.
 
 ![6](https://github.com/Redbaron29/DewSTC/assets/95047781/82410a2b-a771-4126-ad2a-b26ac1b174f6)
 
 
-Assuming a device was paired with yours, you will begin to see the server work. It will attempt to send the message.
+It will attempt to send the message.
 If the message sends successfully, you will receive notice.
 
 ![7](https://github.com/Redbaron29/DewSTC/assets/95047781/0a1d7752-733c-479a-bef8-144946063754)
