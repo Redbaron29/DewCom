@@ -25,6 +25,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -40,13 +41,6 @@
         <activity android:name=".OutboxActivity"
             android:exported="true"
             android:label="Outbox">
-        </activity>
-
-        <activity android:name=".DiscoverAndConnectActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
-            </intent-filter>
         </activity>
 
     </application>
