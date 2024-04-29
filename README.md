@@ -17,9 +17,6 @@ To begin, ensure your Bluetooth and location services are enabled. If not, the a
 The Moto g6 Play phone that was used in the testing phase had a 1hr limit. Then it required re-enabling of this feature
 If no devices are being detected, close the app and restart it.
 
-![IMG_4686](https://github.com/Redbaron29/DewSTC/assets/95047781/48f664f6-ec4d-4f1e-882a-2546fb149255)
-
-
 DewSTC initializes immediately upon starting the application and begins advertizing and build an arraylist of paired devices to relay all messages to. The discover and pairing process takes around 2 minutes if in a densely populated area of pairable devices running bluetooth. Once the first device is paired, any pending messages will begin to send off within 2 minutes.
 ***Please note, even though the DiscoverandConnectActivity has finished, more devices may still pair with yours.
 
