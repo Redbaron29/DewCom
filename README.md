@@ -19,17 +19,8 @@ If no devices are being detected, close the app and restart it.
 ![IMG_4686](https://github.com/Redbaron29/DewSTC/assets/95047781/48f664f6-ec4d-4f1e-882a-2546fb149255)
 
 
-DewSTC initializes immediately upon starting the application and begins advertizing and build an arraylist of paired devices to relay all messages to. The discover and pairing process takes around 2 minutes if in a densely populated area of pairable devices running bluetooth.
-
-![3](https://github.com/Redbaron29/DewSTC/assets/95047781/048f5baf-8ed2-4afb-9c1c-f4ca0d4b0de7)
-![4](https://github.com/Redbaron29/DewSTC/assets/95047781/1824712b-2745-45b1-bfa2-4a0ad15da0f9)
-
-
-Once the first device is paired, any pending messages will begin to send off within 2 minutes.
-Please note, even though the DiscoverandConnectActivity has finished, more devices may still pair with yours.
-
-![5](https://github.com/Redbaron29/DewSTC/assets/95047781/511911a8-7f11-4265-8782-b05556c88be5)
-
+DewSTC initializes immediately upon starting the application and begins advertizing and build an arraylist of paired devices to relay all messages to. The discover and pairing process takes around 2 minutes if in a densely populated area of pairable devices running bluetooth. Once the first device is paired, any pending messages will begin to send off within 2 minutes.
+***Please note, even though the DiscoverandConnectActivity has finished, more devices may still pair with yours.
 
 Before sending your first message, please click on "Enter your phone number" and enter a 10-digit number (no dashes or special characters).
 
