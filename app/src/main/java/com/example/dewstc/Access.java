@@ -8,10 +8,8 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.util.Log;
-
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
