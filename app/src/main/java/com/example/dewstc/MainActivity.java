@@ -411,8 +411,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void clear(View view){
         TextView text = findViewById(R.id.textView11);
+        TextView messageText = findViewById(R.id.editText3);
         text.setMovementMethod(new ScrollingMovementMethod());
         text.setText("");
+        messageText.setText("");
     }
 
 
@@ -476,10 +478,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     void startDiscovery() {
-        Context context = getApplicationContext();
         this.discoveredDevices.clear();
-        Toast toast = Toast.makeText(context, "Starting Discovery", Toast.LENGTH_SHORT);
-        toast.show();
+        TextView text = findViewById(R.id.textView11);
+        text.append("Starting Discovery. Please wait...");
+        text.append("\n");
         startLocalDiscovery();
     }
 
@@ -539,9 +541,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void navigateToConnectDevices() {
-        Toast toast = Toast.makeText(getApplicationContext(), "Now Pairing to Devices", Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
+        TextView text = findViewById(R.id.textView11);
+        text.append("Now pairing to devices...");
+        text.append("\n");
         connectDevices();
     }
 
@@ -695,9 +697,9 @@ public class MainActivity extends AppCompatActivity {
                         BluetoothDevice device = (BluetoothDevice) msg.obj;
                         addDeviceToPairedList(device);
                         setConnectionStatusSuccess();
-                        Toast toast = Toast.makeText(getApplicationContext(), "Now paired to " + device.getName(), Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.CENTER, 0, 0);
-                        toast.show();
+                        TextView text = findViewById(R.id.textView11);
+                        text.append("Now paired to " + device.getName());
+                        text.append("\n");
                         goToNextClass();
                     }
                 }
