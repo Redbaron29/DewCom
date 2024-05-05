@@ -32,23 +32,23 @@ public class ReceivedMessage {
     @ColumnInfo(name = "Timestamp")
     private String mTimestamp;
     @NonNull
-    @ColumnInfo(name = "Message")
-    private String mReceivedMessage;
-    public ReceivedMessage(@NonNull String mTimestamp, @NonNull String mReceivedMessage){
+    @ColumnInfo(name = "Address")
+    private String mAddress;
+    public ReceivedMessage(@NonNull String mTimestamp, @NonNull String mAddress){
         this.mTimestamp = mTimestamp;
-        this.mReceivedMessage = mReceivedMessage;
+        this.mAddress = mAddress;
     }
     /*
      * This constructor is annotated using @Ignore, because Room expects only
      * one constructor by default in an entity class.
      */
     @Ignore
-    public ReceivedMessage(int id, @NonNull String mTimestamp, @NonNull String mReceivedMessage) {
+    public ReceivedMessage(int id, @NonNull String mTimestamp, @NonNull String mAddress) {
         this.id = id;
         this.mTimestamp = mTimestamp;
-        this.mReceivedMessage = mReceivedMessage;
+        this.mAddress = mAddress;
     }
-    public String getReceivedMessage() {return this.mReceivedMessage;}
+    public String getAddress() {return this.mAddress;}
     public String getTimestamp() {return this.mTimestamp;}
 
 

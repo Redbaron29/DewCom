@@ -29,7 +29,7 @@ import java.util.List;
 public class ReceivedMessageListAdapter extends RecyclerView.Adapter<ReceivedMessageListAdapter.RoomViewHolder> {
 
     private final LayoutInflater mInflater;
-    private List<ReceivedMessage> mReceivedMessages; // Cached copy of messages
+    private List<ReceivedMessage> mReceivedMessages; // Cached copy of Timestamps and Addresses
     private static ClickListener clickListener;
     public ReceivedMessageListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
@@ -45,7 +45,7 @@ public class ReceivedMessageListAdapter extends RecyclerView.Adapter<ReceivedMes
     public void onBindViewHolder(RoomViewHolder holder, int position) {
         if (mReceivedMessages != null) {
             ReceivedMessage current = mReceivedMessages.get(position);
-            holder.roomItemView.setText(current.getReceivedMessage() + "\n");
+            holder.roomItemView.setText(current.getAddress() + "\n");
         } else {
             // Covers the case of data not being ready yet.
             holder.roomItemView.setText("No messages");

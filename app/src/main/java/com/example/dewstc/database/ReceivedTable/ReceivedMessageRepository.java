@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * This class holds the implementation code for the methods that interact with the database.
  * Using a repository allows us to group the implementation methods together,
- * and allows the PairedDeviceViewModel to be a clean interface between the rest of the dewstc
+ * and allows the PairedDeviceViewModel to be a clean interface between the rest of the DewSTC
  * and the database.
  * <p>
  * For insert, update and delete, and longer-running queries,
@@ -60,9 +60,7 @@ public class ReceivedMessageRepository {
         new deleteAllMessagesAsyncTask(mReceivedMessageDao).execute();
     }
     // Must run off main thread
-    public void deleteMessage(ReceivedMessage receivedMessage) {
-        new deleteMessageAsyncTask(mReceivedMessageDao).execute(receivedMessage);
-    }
+
     public boolean isTableEmpty()  {
         return mReceivedMessageDao.getCount() == 0;
     }
@@ -141,9 +139,6 @@ public class ReceivedMessageRepository {
         return mReceivedMessageDao.searchTimes(x);
     }
 
-    public LiveData<ReceivedMessage> getMessageByTimestamp(String x){
-        return mReceivedMessageDao.getMessageByTimestamp(x);
-    }
     ReceivedMessage searchForTimestamp(String x){
         return mReceivedMessageDao.searchForTimestamp(x);
     }

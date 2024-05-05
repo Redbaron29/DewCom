@@ -22,7 +22,7 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 /**
- * The PairedDeviceViewModel provides the interface between the UI and the data layer of the dewstc,
+ * The PairedDeviceViewModel provides the interface between the UI and the data layer of the DewSTC,
  * represented by the Repository
  */
 
@@ -35,18 +35,13 @@ public class ReceivedMessageViewModel extends AndroidViewModel {
         mRepositoryReceivedMessage = new ReceivedMessageRepository(application);
         mAllReceivedMessages = mRepositoryReceivedMessage.getAllReceivedMessages();
     }
-    public LiveData<List<ReceivedMessage>> getAllReceivedMessages() {
-        return mAllReceivedMessages;
-    }
     public void insert(ReceivedMessage receivedMessage) {
         mRepositoryReceivedMessage.insert(receivedMessage);
     }
     public void deleteAll() {
         mRepositoryReceivedMessage.deleteAll();
     }
-    public void deleteMessage(ReceivedMessage receivedMessage) {
-        mRepositoryReceivedMessage.deleteMessage(receivedMessage);
-    }
+
     public void update(ReceivedMessage receivedMessage) {
         mRepositoryReceivedMessage.update(receivedMessage);
     }
@@ -54,9 +49,7 @@ public class ReceivedMessageViewModel extends AndroidViewModel {
     public LiveData<List<ReceivedMessage>> searchTimes(String timestamp) {
         return mRepositoryReceivedMessage.searchTimes(timestamp);
     }
-    public LiveData<ReceivedMessage> getMessageByTimestamp(String timestamp) {
-        return mRepositoryReceivedMessage.getMessageByTimestamp(timestamp);
-    }
+
     public ReceivedMessage searchForTimestamp(String x){
         return mRepositoryReceivedMessage.searchForTimestamp(x);
     }

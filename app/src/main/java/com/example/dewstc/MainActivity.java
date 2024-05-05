@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         JSONObject jsonObject = new JSONObject();
         this.jsonObject = jsonObject;
         try {
-            jsonObject.put("Timestamp", time); //serves as ID for message
+            jsonObject.put("Timestamp", time); //serves as message ID
             jsonObject.put("Recipient", number);
             jsonObject.put("Sender", this.selfNumber);
             jsonObject.put("Message", message);
@@ -218,12 +218,12 @@ public class MainActivity extends AppCompatActivity {
             byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
         }
 
-        //Save it to database X times for redundancy. This means it will send out the message to X different nodes
+        //Save to database X times for redundancy. This means it will send out the message to every paired nodes X times.
         textMessageViewModel.insert(new TextMessage(t, jsonText));
         textMessageViewModel.insert(new TextMessage(t, jsonText));
 
         //Send message out to devices
-        text11.append("Sending message to available paired devices.\n");
+        text11.append("Sending message to available paired devices\n");
         startClient(jsonObject, 0, 0, null);
     }
 
@@ -302,6 +302,28 @@ public class MainActivity extends AppCompatActivity {
             startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
             return;
         }
+        //if this message's original sender = the same sender from a message we received earlier,
+        //skip sending it back to them and instead send it to next paired devices.
+        try {
+            TextView text = findViewById(R.id.textView11);
+            long time = (long) jsonObject.get("Timestamp");
+            String t = String.valueOf(time);
+            if (receivedMessageViewModel.searchForTimestamp(t) != null) {
+                if (receivedMessageViewModel.searchForTimestamp(t).getAddress().equals(this.pairedDevices.get(deviceNumber).getAddress())) {
+                    if (ignoreDevice != null) {
+                        text.append("Already sent/received this message to/from: " + ignoreDevice.getAddress() +"\nSending to next paired device\n");
+                    }
+                    startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
+                    return;
+                }
+            }
+            else {
+                text.append("Timestamp does not exist in received_messages table\nSending message\n");
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
         final TextView text = findViewById(R.id.textView11);
         String displayText = "Sending to " + this.pairedDevices.get(deviceNumber).toString() + "\n";
         text.append(displayText);
@@ -337,9 +359,13 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 else {
                                     text.append("Message sent successfully\n");
-
-                                    //Delete this message from Outbox
                                     TextMessage sentText = textMessageViewModel.getMyLatestMessage();
+                                    String g = sentText.getTimestamp();
+                                    //Add sent message to ReceivedMessages to ensure copies of messages are not resent to same address
+                                    if (ignoreDevice != null) {
+                                        receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
+                                    }
+                                    //Delete this message from Outbox
                                     textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
@@ -371,7 +397,9 @@ public class MainActivity extends AppCompatActivity {
             text.append("Already received, dropping\n");
             return;
         }
-        receivedMessageViewModel.insert(new ReceivedMessage(t, jsonObject.toString()));
+        String senderAddress = receivedDevice.getAddress();
+        receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+        text.append("Added new message from " + senderAddress + " to received_messages table\n");
         //if you are intended recipient, do not broadcast further
         if (Long.toString(number).equals(Long.toString(this.selfNumber))) {
             text.append("You are the intended recipient\n");
@@ -469,13 +497,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     public void deleteReceivedList() {
         if (!receivedMessageViewModel.isTableEmpty()) {
             receivedMessageViewModel.deleteAll();
         }
     }
-
-
 
     void startDiscovery() {
         this.discoveredDevices.clear();
@@ -542,7 +569,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToConnectDevices() {
         TextView text = findViewById(R.id.textView11);
-        text.append("Now pairing to devices...");
+        text.append("Discovery complete. " + discoveredDevices.size() + " devices found.");
+        text.append("\n");
+        text.append("Starting Pairing. Please wait...");
         text.append("\n");
         connectDevices();
     }
@@ -630,13 +659,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //Once discovery process is complete, switch off animations
+    //Once discovery process is complete, end search
     private final BroadcastReceiver discovery_ending = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 cancelDiscovery();
                 navigateToConnectDevices();
+                TextView text = findViewById(R.id.textView11);
+                text.append("Attempting to pair to discovered devices...");
+                text.append("\n");
             }
         }
     };
@@ -664,14 +696,16 @@ public class MainActivity extends AppCompatActivity {
         //register Broadcast Receiver for new device found
         IntentFilter deviceConnected = new IntentFilter();
         registerReceiver(deviceConnectedReceiver, deviceConnected);
-        //Start pairing to devices. Once pairing is complete,
-        //automatically return to MainActivity
+        //Start pairing to devices. Once pairing is complete, return
         startPairing();
     }
 
     void handleConnectionSuccess(BluetoothDevice device) {
         if(this.discoveredDevices.contains(device)) {
             setConnectionStatusSuccess();
+            TextView text = findViewById(R.id.textView11);
+            text.append("Connection Success!");
+            text.append("\n");
         }
     }
 
@@ -700,7 +734,6 @@ public class MainActivity extends AppCompatActivity {
                         TextView text = findViewById(R.id.textView11);
                         text.append("Now paired to " + device.getName());
                         text.append("\n");
-                        goToNextClass();
                     }
                 }
             };
@@ -721,6 +754,9 @@ public class MainActivity extends AppCompatActivity {
                     //in case of successful connection, restart server to allow new connections
                     case Constants.SERVER_DEVICE_CONNECTED:
                         startServer(Constants.serverChannel++);
+                        TextView text = findViewById(R.id.textView11);
+                        text.append("Allowing for additional connections...");
+                        text.append("\n");
                         break;
 
                     //set connection status of successfully connected device, and add it to list of paired devices
@@ -738,11 +774,6 @@ public class MainActivity extends AppCompatActivity {
         this.serverThread = bluetoothServer;
     }
 
-    public void goToNextClass() {
-        //close server thread to prevent accepting new connections
-        this.serverThread.interrupt();
-    }
-
     //register receiver for new device connection and set connection status to successful
     private final BroadcastReceiver deviceConnectedReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -757,6 +788,9 @@ public class MainActivity extends AppCompatActivity {
     public void addDeviceToPairedList(BluetoothDevice device) {
         if(!this.pairedDevices.contains(device)) {
             this.pairedDevices.add(device);
+            TextView text = findViewById(R.id.textView11);
+            text.append("Paired device added to list...");
+            text.append("\n");
         }
     }
 
