@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        }, 0, 120000);
+        }, 120000, 120000);
 
         // Schedule the server to run every day (86,400,000 milliseconds)
         // Delete all Outbox messages ReceivedMessage timestamp entries
