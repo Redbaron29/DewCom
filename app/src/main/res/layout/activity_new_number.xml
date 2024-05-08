@@ -25,7 +25,7 @@ limitations under the License. -->
         android:id="@+id/edit_number"
         style="@style/text_view_style"
         android:hint="@string/hint_word"
-        android:inputType="number"/>
+        android:inputType="number" />
 
     <Button
         android:id="@+id/button_save"

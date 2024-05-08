@@ -15,7 +15,7 @@
     <string name="recipient_number">Recipient Number -</string>
     <string name="message">Message -</string>
     <string name="your_number_is">Your number is: </string>
-    <string name="clear">Clear</string>
+    <string name="clear">Refresh</string>
     <string name="outbox">Outbox</string>
     <string name="inbox">Inbox</string>
 </resources>

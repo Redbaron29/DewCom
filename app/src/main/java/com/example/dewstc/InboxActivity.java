@@ -5,6 +5,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -72,7 +73,7 @@ public class InboxActivity extends AppCompatActivity {
                 });
         // Attach the item touch helper to the recycler view.
         helper.attachToRecyclerView(recyclerView);
-        adapter.setOnItemClickListener(new TextMessageForMeListAdapter.ClickListener()  {
+        adapter.setOnItemClickListener(new TextMessageForMeListAdapter.ClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 TextMessageForMe textMessageForMe = adapter.getMessageForMeAtPosition(position);

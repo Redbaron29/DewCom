@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,30 +12,30 @@
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:justifyContent="space_around"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        app:justifyContent="space_around">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button9"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="makeMessage"
-            android:text="@string/send"/>
+            android:text="@string/send" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button11"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="clear"
-            android:text="@string/clear"/>
+            android:text="@string/clear" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="showMessages"
-            android:text="@string/inbox"/>
+            android:text="@string/inbox" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button12"

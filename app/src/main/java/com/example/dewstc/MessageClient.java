@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
 public class MessageClient extends Thread {
     private final JSONObject jsonObject;
     private final BluetoothSocket socket;

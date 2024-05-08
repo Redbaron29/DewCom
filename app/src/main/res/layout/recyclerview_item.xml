@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
     <TextView
         android:id="@+id/textView"
         style="@style/text_view_style"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="Click here to enter your number"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimaryDark"/>
+        tools:text="Click here to enter your number" />
 </LinearLayout>
 

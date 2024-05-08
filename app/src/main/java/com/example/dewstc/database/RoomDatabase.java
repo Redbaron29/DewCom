@@ -18,6 +18,7 @@ package com.example.dewstc.database;
 
 import android.content.Context;
 import android.os.AsyncTask;
+
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
@@ -42,19 +43,23 @@ import com.example.dewstc.database.ReceivedTable.ReceivedMessageDao;
 public abstract class RoomDatabase extends androidx.room.RoomDatabase {
 
     public abstract NumberDao numberDao();
+
     public abstract TextMessageDao messageDao();
+
     public abstract TextMessageForMeDao messageForMeDao();
+
     public abstract ReceivedMessageDao receivedMessageDao();
 
     private static RoomDatabase INSTANCE;
+
     public static RoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (RoomDatabase.class) {
                 if (INSTANCE == null) {
                     // Create database here.
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            //RoomDatabase.class, "my_database")
-                            RoomDatabase.class, "my_database").allowMainThreadQueries()
+                                    //RoomDatabase.class, "my_database")
+                                    RoomDatabase.class, "my_database").allowMainThreadQueries()
                             // Wipes and rebuilds instead of migrating if no Migration object.
                             // Migration is not part of this practical.
                             .fallbackToDestructiveMigration()
@@ -70,10 +75,10 @@ public abstract class RoomDatabase extends androidx.room.RoomDatabase {
     // In this case, use PopulateDbAsync to populate the database
     // with the initial data set if the database has no entries.
     private static androidx.room.RoomDatabase.Callback sRoomDatabaseCallback =
-            new androidx.room.RoomDatabase.Callback(){
+            new androidx.room.RoomDatabase.Callback() {
 
                 @Override
-                public void onOpen (@NonNull SupportSQLiteDatabase db){
+                public void onOpen(@NonNull SupportSQLiteDatabase db) {
                     super.onOpen(db);
                     new PopulateDbAsync(INSTANCE).execute();
                 }
@@ -90,11 +95,11 @@ public abstract class RoomDatabase extends androidx.room.RoomDatabase {
 
 
         // Initial data set
-        private static final String [] numbers = {"Enter your number"};
-        private static final String [] messages = {};
-        private static final String [] timestamps = {};
-        private static final String [] messagesForMe = {};
-        private static final String [] receivedMessages = {};
+        private static final String[] numbers = {"Enter your number"};
+        private static final String[] messages = {};
+        private static final String[] timestamps = {};
+        private static final String[] messagesForMe = {};
+        private static final String[] receivedMessages = {};
 
         PopulateDbAsync(RoomDatabase db) {
             mNumberDao = db.numberDao();

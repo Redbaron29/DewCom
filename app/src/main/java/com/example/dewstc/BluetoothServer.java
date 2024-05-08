@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
 import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,7 @@ public class BluetoothServer extends Thread {
 
     public void run() {
         BluetoothSocket socket;
-        while(true) {
+        while (true) {
             try {
                 sendMessageUp(Constants.SERVER_WAITING_DEVICE);
                 socket = bluetoothServer.accept();
@@ -43,7 +44,7 @@ public class BluetoothServer extends Thread {
                 sendMessageUp(Constants.SERVER_ACCEPT_FAIL);
                 break;
             }
-            if(socket != null) {
+            if (socket != null) {
                 //send notification to handler about device connection
                 sendMessageUp(Constants.SERVER_DEVICE_CONNECTED);
                 Message msg = new Message();

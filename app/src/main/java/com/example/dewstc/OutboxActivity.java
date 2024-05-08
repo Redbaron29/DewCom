@@ -73,7 +73,7 @@ public class OutboxActivity extends AppCompatActivity {
                 });
         // Attach the item touch helper to the recycler view.
         helper.attachToRecyclerView(recyclerView);
-        adapter.setOnItemClickListener(new TextMessageListAdapter.ClickListener()  {
+        adapter.setOnItemClickListener(new TextMessageListAdapter.ClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 TextMessage textMessage = adapter.getMessageAtPosition(position);

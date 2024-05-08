@@ -15,11 +15,15 @@
  */
 
 package com.example.dewstc;
+
 import static com.example.dewstc.MainActivity.EXTRA_DATA_ID;
 import static com.example.dewstc.MainActivity.EXTRA_DATA_UPDATE_NUMBER;
+
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -42,7 +46,7 @@ public class NewNumberActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_number);
 
         mEditNumberView = findViewById(R.id.edit_number);
-        int id = -1 ;
+        int id = -1;
 
         final Bundle extras = getIntent().getExtras();
 
@@ -68,12 +72,10 @@ public class NewNumberActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(mEditNumberView.getText())) {
                     // No number was entered, set the result accordingly.
                     setResult(RESULT_CANCELED, replyIntent);
-                }
-                else if (mEditNumberView.getText().length() != 10) {
+                } else if (mEditNumberView.getText().length() != 10) {
                     Toast.makeText(NewNumberActivity.this, "Phone Number must be 10 digits", Toast.LENGTH_SHORT).show();
                     return;
-                }
-                else {
+                } else {
                     // Get the new number that the user entered.
                     String number = mEditNumberView.getText().toString();
 

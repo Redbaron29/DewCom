@@ -32,7 +32,7 @@ public class MessageServer extends Thread {
         //get InputStream or throw error
         try {
             inputStream = this.socket.getInputStream();
-        } catch(IOException e) {
+        } catch (IOException e) {
             Log.e(Constants.TAG, "Server: Error getting InputStream");
             sendMessage(Constants.JSON_RECEIVE_FAIL);
             return;
@@ -55,7 +55,7 @@ public class MessageServer extends Thread {
             outputStream = this.socket.getOutputStream();
             outputStream.write(encodedJSON);
             Log.e(Constants.TAG, "MessageServer: ACK Sent");
-        } catch(IOException e) {
+        } catch (IOException e) {
             Log.e(Constants.TAG, "MessageServer: Error sending ACK");
             sendMessage(Constants.JSON_RECEIVE_FAIL);
             return;
@@ -68,7 +68,7 @@ public class MessageServer extends Thread {
             jsonObject = new JSONObject(jsonText);
             Log.e(Constants.TAG, "Server: Message successfully decoded");
             Log.e(Constants.TAG, jsonText);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             Log.e(Constants.TAG, "Error parsing JSON");
             sendMessage(Constants.JSON_RECEIVE_FAIL);
             return;

@@ -1,5 +1,6 @@
 package com.example.dewstc;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -46,7 +47,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     public static final int NEW_NUMBER_ACTIVITY_REQUEST_CODE = 1;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_DATA_ID = "extra_data_id";
     ArrayList<BluetoothDevice> discoveredDevices;
     ArrayList<BluetoothDevice> pairedDevices = new ArrayList<>();
-    JSONObject jsonObject;
+    JSONObject jsonObject, jsonObjectACK;
     long selfNumber;
     public NumberViewModel numberViewModel;
     TextMessageViewModel textMessageViewModel;
@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         final NumberListAdapter adapter = new NumberListAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        TextView text11 = findViewById(R.id.textView11);
+        text11.setMovementMethod(new ScrollingMovementMethod());
 
         //Set up arraylist
         this.discoveredDevices = new ArrayList<>();
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        adapter.setOnItemClickListener(new NumberListAdapter.ClickListener()  {
+        adapter.setOnItemClickListener(new NumberListAdapter.ClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Number number = adapter.getNumberAtPosition(position);
@@ -103,25 +105,32 @@ public class MainActivity extends AppCompatActivity {
         //check if location permission enabled, if not, ask for permission
         Access.checkPermissions(getApplicationContext(), this);
 
-        Timer send = new Timer();
-        TimerTask sendMessages = new TimerTask() {
-            @Override
-            public void run() {
-                    sendPendingMessages();
-                }
-            };
         // Schedule the server to run every 2 minutes (120,000 milliseconds)
-        send.schedule(sendMessages, 0, 120000);
-
-        Timer delete = new Timer();
-        TimerTask deleteList = new TimerTask() {
+        Timer send = new Timer();
+        send.schedule(new TimerTask() {
             @Override
             public void run() {
-                deleteReceivedList();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        sendPendingMessages();
+                    }
+                });
             }
-        };
+        }, 0, 120000);
+
         // Schedule the server to run every day (86,400,000 milliseconds)
-        delete.schedule(deleteList, 0, 86400000);
+        Timer delete = new Timer();
+        delete.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        deleteReceivedList();
+                    }
+                });
+            }
+        }, 0, 86400000);
+
 
         final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Context context = getApplicationContext();
@@ -142,12 +151,12 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter location_change = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(gpsReceiver, location_change);
         //If location is not on, request
-        if(Access.isMyLocationOn(context)) {
+        if (Access.isMyLocationOn(context)) {
             Access.displayLocationSettingsRequest(context, this);
             finish();
         }
         //If Bluetooth is not enabled, request
-        if(!bluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             finish();
@@ -157,25 +166,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void makeMessage(View view) {
-        this.selfNumber = Long.parseLong(numberViewModel.getMyNumber().getMyNumber());
+        if (numberViewModel.getMyNumber().getMyNumber().length() != 10) {
+            Toast toast = Toast.makeText(getApplicationContext(), "You must enter your own number", Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
         TextView text11 = findViewById(R.id.textView11);
-        text11.setText("");
         //get values from user input
         EditText text = findViewById(R.id.editText2);
         String number_text = text.getText().toString();
+        EditText copies = findViewById(R.id.editText22);
+        String copy = copies.getText().toString();
         //check for 10 digits
-        if(number_text.length() != 10) {
+        if (number_text.length() != 10) {
             Toast toast = Toast.makeText(getApplicationContext(), "Phone Number must be 10 digits", Toast.LENGTH_SHORT);
             toast.show();
             return;
         }
         //check that recipient number is not self number
+        this.selfNumber = Long.parseLong(numberViewModel.getMyNumber().getMyNumber());
         String selfNumberText = Long.toString(this.selfNumber);
-        if(selfNumberText.equals(number_text)) {
+        if (selfNumberText.equals(number_text)) {
             Toast toast = Toast.makeText(getApplicationContext(), "Recipient Number cannot be your own number", Toast.LENGTH_SHORT);
             toast.show();
             return;
         }
+        if (copy.equals("")) {
+            Toast toast = Toast.makeText(getApplicationContext(), "Please enter the number of copies", Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
+        int copy_number = Integer.parseInt(copy);
         long number = Long.parseLong(number_text);
         text = findViewById(R.id.editText3);
         String message = text.getText().toString();
@@ -199,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             jsonObject.put("Recipient", number);
             jsonObject.put("Sender", this.selfNumber);
             jsonObject.put("Message", message);
-            jsonObject.put("CurrentHops", 0);
+            jsonObject.put("CurrentHops", 1);
             //make list of bluetooth device for hops list in JSONArray
 
         } catch (JSONException e) {
@@ -212,15 +233,15 @@ public class MainActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             byte[] encodedJSON = Base64.getEncoder().encode(jsonText.getBytes());
             byte[] decodedJSON = Base64.getDecoder().decode(encodedJSON);
-        }
-        else {
+        } else {
             byte[] encodedJSON = android.util.Base64.encode(jsonText.getBytes(), android.util.Base64.DEFAULT);
             byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
         }
 
         //Save to database X times for redundancy. This means it will send out the message to every paired nodes X times.
-        textMessageViewModel.insert(new TextMessage(t, jsonText));
-        textMessageViewModel.insert(new TextMessage(t, jsonText));
+        for (int i = 0; i < copy_number; ++i) {
+            textMessageViewModel.insert(new TextMessage(t, jsonText));
+        }
 
         //Send message out to devices
         text11.append("Sending message to available paired devices\n");
@@ -234,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 //handle cases
-                switch(msg.what) {
+                switch (msg.what) {
                     case Constants.SERVER_CREATING_CHANNEL_FAIL:
                         text.append(Constants.SERVER_CREATING_CHANNEL_FAIL_TEXT);
                         text.append("\n");
@@ -262,10 +283,10 @@ public class MainActivity extends AppCompatActivity {
                     case Constants.SOCKET:
                         BluetoothSocket socket = (BluetoothSocket) msg.obj;
                         final BluetoothDevice receivedDevice = socket.getRemoteDevice();
-                        Handler messageHandler = new Handler(Looper.getMainLooper()){
+                        Handler messageHandler = new Handler(Looper.getMainLooper()) {
                             @Override
                             public void handleMessage(Message msg) {
-                                if(msg.what == Constants.JSON_OBJECT_RECEIVE) {
+                                if (msg.what == Constants.JSON_OBJECT_RECEIVE) {
                                     JSONObject jsonObject = (JSONObject) msg.obj;
                                     String displayText = "Message received from " + receivedDevice.toString() + "\n";
                                     text.append(displayText);
@@ -274,8 +295,7 @@ public class MainActivity extends AppCompatActivity {
                                     } catch (JSONException e) {
                                         text.append("JSON Exception " + e);
                                     }
-                                }
-                                else if(msg.what == Constants.JSON_RECEIVE_FAIL) {
+                                } else if (msg.what == Constants.JSON_RECEIVE_FAIL) {
                                     text.append("Error receiving message.\n");
                                 }
                             }
@@ -308,16 +328,20 @@ public class MainActivity extends AppCompatActivity {
             TextView text = findViewById(R.id.textView11);
             long time = (long) jsonObject.get("Timestamp");
             String t = String.valueOf(time);
+            //insert ack message deletion method here
+            //This will be difficult because the only thing that is received is the jsonObject
+            //This has a new timestamp on it
+            //This causes a loop of acks sent back and forth forever
+            //Maybe try the message String
             if (receivedMessageViewModel.searchForTimestamp(t) != null) {
                 if (receivedMessageViewModel.searchForTimestamp(t).getAddress().equals(this.pairedDevices.get(deviceNumber).getAddress())) {
                     if (ignoreDevice != null) {
-                        text.append("Already sent/received this message to/from: " + ignoreDevice.getAddress() +"\nSending to next paired device\n");
+                        text.append("Already sent/received this message to/from: " + ignoreDevice.getAddress() + "\nSending to next paired device\n");
                     }
                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                     return;
                 }
-            }
-            else {
+            } else {
                 text.append("Timestamp does not exist in received_messages table\nSending message\n");
             }
         } catch (JSONException e) {
@@ -331,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 //handle cases
-                switch(msg.what) {
+                switch (msg.what) {
                     case Constants.CLIENT_CONNECTION_FAIL:
                         text.append(Constants.CLIENT_CONNECTION_FAIL_TEXT);
                         text.append("\n");
@@ -344,20 +368,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case Constants.SOCKET:
                         BluetoothSocket socket = (BluetoothSocket) msg.obj;
-                        Handler messageHandler = new Handler(Looper.getMainLooper()){
+                        Handler messageHandler = new Handler(Looper.getMainLooper()) {
                             @Override
                             public void handleMessage(Message msg) {
-                                if(msg.what == Constants.JSON_SEND_FAIL) {
+                                if (msg.what == Constants.JSON_SEND_FAIL) {
                                     text.append("Message sending failed\n");
-                                    try {
-                                        TimeUnit.SECONDS.sleep(1);
-                                    }
-                                    catch(InterruptedException ex) {
-                                        ex.printStackTrace();
-                                    }
                                     startClient(jsonObject, deviceNumber, attemptNumber + 1, ignoreDevice);
-                                }
-                                else {
+                                } else {
                                     text.append("Message sent successfully\n");
                                     TextMessage sentText = textMessageViewModel.getMyLatestMessage();
                                     String g = sentText.getTimestamp();
@@ -407,6 +424,37 @@ public class MainActivity extends AppCompatActivity {
             text.append("\n");
             //add message to Inbox database
             textMessageForMeViewModel.insert(new TextMessageForMe(t, jsonObject.toString()));
+            //send ack back to originating sender. This will delete all pending Outbox copies that may exist
+            String ogTime = (String) jsonObject.get("Message");
+            receivedMessageViewModel.insert(new ReceivedMessage(ogTime, senderAddress));
+            //long ackTime = Long.parseLong(ogTime);
+            if (receivedMessageViewModel.searchForTimestamp(ogTime) == null) {
+                text.append("Added new message from " + senderAddress + " to received_messages table\n");
+                receivedMessageViewModel.insert(new ReceivedMessage(ogTime, senderAddress));
+            }
+            Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
+            long newTime = timestamp1.getTime();
+            String newTimestamp = String.valueOf(newTime);
+            JSONObject jsonObjectACK = new JSONObject();
+            this.jsonObjectACK = jsonObjectACK;
+            try {
+                jsonObjectACK.put("Timestamp", newTime);
+                jsonObjectACK.put("Recipient", jsonObject.get("Sender"));
+                jsonObjectACK.put("Sender", number);
+                jsonObjectACK.put("Message", t);
+                jsonObjectACK.put("CurrentHops", 1);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            String jsonACKText = jsonObjectACK.toString();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                byte[] encodedJSON = Base64.getEncoder().encode(jsonACKText.getBytes());
+                byte[] decodedJSON = Base64.getDecoder().decode(encodedJSON);
+            } else {
+                byte[] encodedJSON = android.util.Base64.encode(jsonACKText.getBytes(), android.util.Base64.DEFAULT);
+                byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
+            }
+            textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
             return;
         }
         //if max hops are reached, then drop packet
@@ -419,11 +467,6 @@ public class MainActivity extends AppCompatActivity {
         textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
         //broadcast message back to network, but not back to the "receivedDevice"
         text.append("Broadcasting message back to network\n");
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
         startClient(jsonObject, 0, 0, receivedDevice);
     }
 
@@ -437,12 +480,16 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void clear(View view){
-        TextView text = findViewById(R.id.textView11);
-        TextView messageText = findViewById(R.id.editText3);
-        text.setMovementMethod(new ScrollingMovementMethod());
-        text.setText("");
-        messageText.setText("");
+    public static void triggerRestart(Activity context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+        context.finish();
+        System.exit(0);
+    }
+
+    public void clear(View view) {
+        triggerRestart(MainActivity.this);
     }
 
 
@@ -450,11 +497,11 @@ public class MainActivity extends AppCompatActivity {
      * When the user enters a new number in the NewNumberActivity,
      * that activity returns the result to this activity.
      * If the user entered a new number, save it in the database.
-
+     *
      * @param requestCode ID for the request
-     * @param resultCode indicates success or failure
-     * @param data The Intent sent back from the NewNumberActivity,
-     *             which includes the number that the user entered
+     * @param resultCode  indicates success or failure
+     * @param data        The Intent sent back from the NewNumberActivity,
+     *                    which includes the number that the user entered
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -463,16 +510,14 @@ public class MainActivity extends AppCompatActivity {
             Number number = new Number(data.getStringExtra(NewNumberActivity.EXTRA_REPLY));
             // Save your phone number to the database
             numberViewModel.insert(number);
-        }
-        else if (requestCode == UPDATE_NUMBER_ACTIVITY_REQUEST_CODE
+        } else if (requestCode == UPDATE_NUMBER_ACTIVITY_REQUEST_CODE
                 && resultCode == RESULT_OK) {
             String word_data = data.getStringExtra(NewNumberActivity.EXTRA_REPLY);
             int id = data.getIntExtra(NewNumberActivity.EXTRA_REPLY_ID, -1);
 
             if (id != -1) {
                 numberViewModel.update(new Number(id, word_data));
-            }
-            else {
+            } else {
                 Toast.makeText(this, R.string.unable_to_update,
                         Toast.LENGTH_LONG).show();
             }
@@ -492,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyLatestMessage().getTextMessage());
                 startClient(jsonObject1, 0, 0, null);
 
-            } catch (JSONException err){
+            } catch (JSONException err) {
                 Log.d("Error", err.toString());
             }
         }
@@ -515,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
     public void startLocalDiscovery() {
         Context context = getApplicationContext();
         //if location is off, quit discovery and request again
-        if(Access.isMyLocationOn(context)) {
+        if (Access.isMyLocationOn(context)) {
             cancelDiscovery();
             Toast toast = Toast.makeText(context, "Please switch on Location and retry", Toast.LENGTH_SHORT);
             toast.show();
@@ -524,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //if bluetooth is off, quit discovery and request again
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(!bluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled()) {
             cancelDiscovery();
             Toast toast = Toast.makeText(context, "Please switch on Bluetooth and retry", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -534,7 +579,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         //if not discoverable, request for discovery
-        if(checkScanMode() != 2) {
+        if (checkScanMode() != 2) {
             cancelDiscovery();
             Toast toast = Toast.makeText(context, "Please switch on Discovery and retry", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -545,13 +590,13 @@ public class MainActivity extends AppCompatActivity {
         //create list of discovered devices from scratch
         this.discoveredDevices.clear();
         //if already discovering, restart the process
-        if(bluetoothAdapter.isDiscovering()) {
+        if (bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
         }
         boolean flag = bluetoothAdapter.startDiscovery();
-        bluetoothAdapter.startDiscovery();
+        //bluetoothAdapter.startDiscovery();
         //if discovery failed to start, show toast message
-        if(!flag) {
+        if (!flag) {
             Toast toast = Toast.makeText(getApplicationContext(), "Discovery failed: Please make sure Bluetooth and Location are on before retrying.", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -562,7 +607,7 @@ public class MainActivity extends AppCompatActivity {
     //method to stop discovering if discovery is on
     public void cancelDiscovery() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(bluetoothAdapter.isDiscovering()) {
+        if (bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
         }
     }
@@ -579,8 +624,8 @@ public class MainActivity extends AppCompatActivity {
     //return true if new device already exists in list of found devices
     public boolean checkDuplicate(BluetoothDevice device) {
         int len = this.discoveredDevices.size();
-        for(int i = 0; i < len; i++) {
-            if(this.discoveredDevices.get(i).equals(device)) {
+        for (int i = 0; i < len; i++) {
+            if (this.discoveredDevices.get(i).equals(device)) {
                 return true;
             }
         }
@@ -589,7 +634,7 @@ public class MainActivity extends AppCompatActivity {
 
     //add new device to list if it is not duplicate
     public void addDeviceToList(BluetoothDevice device) {
-        if(!checkDuplicate(device)) {
+        if (!checkDuplicate(device)) {
             this.discoveredDevices.add(device);
         }
     }
@@ -605,16 +650,13 @@ public class MainActivity extends AppCompatActivity {
     public int checkScanMode() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         int mode = bluetoothAdapter.getScanMode();
-        if(mode == BluetoothAdapter.SCAN_MODE_NONE) {
+        if (mode == BluetoothAdapter.SCAN_MODE_NONE) {
             return 0;
-        }
-        else if(mode == BluetoothAdapter.SCAN_MODE_CONNECTABLE) {
+        } else if (mode == BluetoothAdapter.SCAN_MODE_CONNECTABLE) {
             return 1;
-        }
-        else if(mode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+        } else if (mode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
             return 2;
-        }
-        else {
+        } else {
             return -1;
         }
     }
@@ -638,10 +680,10 @@ public class MainActivity extends AppCompatActivity {
                 cancelDiscovery();
                 //if scan mode is connectable, but not discoverable
                 //request permission for discovery
-                if(intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
                         == BluetoothAdapter.STATE_ON) {
                     int mode = checkScanMode();
-                    if(mode == 0 || mode == 1) {
+                    if (mode == 0 || mode == 1) {
                         requestDiscovery();
                     }
                 }
@@ -680,7 +722,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device != null) {
+                if (device != null) {
                     addDeviceToList(device);
                 }
             }
@@ -701,7 +743,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void handleConnectionSuccess(BluetoothDevice device) {
-        if(this.discoveredDevices.contains(device)) {
+        if (this.discoveredDevices.contains(device)) {
             setConnectionStatusSuccess();
             TextView text = findViewById(R.id.textView11);
             text.append("Connection Success!");
@@ -717,10 +759,10 @@ public class MainActivity extends AppCompatActivity {
     public void startPairing() {
         int len = this.discoveredDevices.size();
         //loop through ArrayList of discovered devices and attempt to establish paired status
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             final BluetoothDevice currentDevice = this.discoveredDevices.get(i);
             //if device has already been paired, move on to next device
-            if(this.pairedDevices.contains(currentDevice)) {
+            if (this.pairedDevices.contains(currentDevice)) {
                 continue;
             }
             //register handler to set connection status in case of successful connection
@@ -749,7 +791,7 @@ public class MainActivity extends AppCompatActivity {
         Handler serverHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                switch(msg.what) {
+                switch (msg.what) {
 
                     //in case of successful connection, restart server to allow new connections
                     case Constants.SERVER_DEVICE_CONNECTED:
@@ -778,7 +820,7 @@ public class MainActivity extends AppCompatActivity {
     private final BroadcastReceiver deviceConnectedReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 setConnectionStatusSuccess();
             }
         }
@@ -786,11 +828,13 @@ public class MainActivity extends AppCompatActivity {
 
     //method to add device to list of paired devices if it does not already exist
     public void addDeviceToPairedList(BluetoothDevice device) {
-        if(!this.pairedDevices.contains(device)) {
+        if (!this.pairedDevices.contains(device)) {
             this.pairedDevices.add(device);
             TextView text = findViewById(R.id.textView11);
             text.append("Paired device added to list...");
             text.append("\n");
+            //close server thread to prevent accepting new connections
+            //this.serverThread.interrupt();
         }
     }
 
