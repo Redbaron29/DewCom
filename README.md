@@ -14,11 +14,11 @@ To begin, ensure your Bluetooth and location services are enabled. If not, the a
 
 
 **Please note that the maximum allowed discoverable time varies by phone. 
-The Moto g6 Play phone that was used in the testing phase had a 1hr limit. Then it required re-enabling of this feature
-If no devices are being detected, close the app and restart it.
+The Moto g6 Play phone that was used in the testing phase had a 30 minute limit. Then it required re-enabling of this feature
+If no devices are being detected, click the "Refresh" button or restart app (last resort).
 
 DewSTC initializes immediately upon starting the application and begins advertizing and build an arraylist of paired devices to relay all messages to. The discover and pairing process takes around 2 minutes if in a densely populated area of pairable devices running bluetooth. Once the first device is paired, any pending messages will begin to send off within 2 minutes.
-***Please note, even though the DiscoverandConnectActivity has finished, more devices may still pair with yours.
+***Please note, after initializing the discovery process, devices may still pair with yours on an ongoing basis.
 
 Before sending your first message, please click on "Enter your phone number" and enter a 10-digit number (no dashes or special characters).
 
@@ -28,7 +28,7 @@ Before sending your first message, please click on "Enter your phone number" and
 Please note, this is just suppose to simulate a user's actual phone number. In the future, we aim to use the device's SIM card to extract the actual phone number.
 Also, note that some 10-digit numbers cause sporadic errors to occur. These typically come from 10 consecutive numbers like 1111111111 or 0000000000. Do not use these.
 
-Once you saved your made-up phone number, type in a 10-digit number for your recipient, and type in a message. Hit send.
+Once you saved your made-up phone number, type in a 10-digit number for your recipient, enter the desired number of message copies to send out, and type in a message. Hit send. If multiple copies go through the same device, they will be dropped. This allows redundancy and the best possibility of a message being successfully received.
 
 ![6](https://github.com/Redbaron29/DewSTC/assets/95047781/5c980e98-b964-4579-9340-67aaf94fd53c)
 
@@ -45,7 +45,7 @@ If you receive a message intended for another user, the same process occurs. If 
 ![9](https://github.com/Redbaron29/DewSTC/assets/95047781/e5997141-19bd-4d68-ba7d-9f4709c0aed5)
 
 
-All successfully received messages intended for yourself will be stored in your Inbox.
+All successfully received messages intended for yourself will be stored in your Inbox. Upon receiving a message in your inobx, STC will create an ack "message" to send back out, with the goal of reaching the initial sender to let them know their message was successfully received.
 
 ![11](https://github.com/Redbaron29/DewSTC/assets/95047781/1cf37b51-4093-4d3f-ad10-0ee7e76d0ac8)
 
