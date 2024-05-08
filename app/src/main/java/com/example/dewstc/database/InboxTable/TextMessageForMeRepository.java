@@ -15,10 +15,15 @@
  */
 
 package com.example.dewstc.database.InboxTable;
+
 import android.app.Application;
+
 import androidx.lifecycle.LiveData;
+
 import android.os.AsyncTask;
+
 import com.example.dewstc.database.RoomDatabase;
+
 import java.util.List;
 
 /**
@@ -52,10 +57,11 @@ public class TextMessageForMeRepository {
         new insertAsyncTask(mTextMessageForMeDao).execute(textMessageForMe);
     }
 
-    public void update(TextMessageForMe textMessageForMe)  {
+    public void update(TextMessageForMe textMessageForMe) {
         new updateMessageAsyncTask(mTextMessageForMeDao).execute(textMessageForMe);
     }
-    public void deleteAll()  {
+
+    public void deleteAll() {
         new deleteAllMessagesAsyncTask(mTextMessageForMeDao).execute();
     }
 
@@ -102,7 +108,7 @@ public class TextMessageForMeRepository {
     }
 
     /**
-     *  Deletes a single message from the database.
+     * Deletes a single message from the database.
      */
     private static class deleteMessageAsyncTask extends AsyncTask<TextMessageForMe, Void, Void> {
         private TextMessageForMeDao mAsyncTaskTextMessageDao;
@@ -119,10 +125,11 @@ public class TextMessageForMeRepository {
     }
 
     /**
-     *  Updates a message in the database.
+     * Updates a message in the database.
      */
     private static class updateMessageAsyncTask extends AsyncTask<TextMessageForMe, Void, Void> {
         private TextMessageForMeDao mAsyncTaskTextMessageDao;
+
         updateMessageAsyncTask(TextMessageForMeDao textMessageForMeDao) {
             mAsyncTaskTextMessageDao = textMessageForMeDao;
         }
@@ -133,19 +140,24 @@ public class TextMessageForMeRepository {
             return null;
         }
     }
-    TextMessageForMe getMyEarliestMessageForMe(){
+
+    TextMessageForMe getMyEarliestMessageForMe() {
         return mTextMessageForMeDao.getMyEarliestMessageForMe();
     }
-    TextMessageForMe getMyLatestMessageForMe(){
+
+    TextMessageForMe getMyLatestMessageForMe() {
         return mTextMessageForMeDao.getMyLatestMessageForMe();
     }
-    public LiveData<List<TextMessageForMe>> searchTimes(String x){
+
+    public LiveData<List<TextMessageForMe>> searchTimes(String x) {
         return mTextMessageForMeDao.searchTimes(x);
     }
-    public LiveData<TextMessageForMe> getMessageByTimestamp(String x){
+
+    public LiveData<TextMessageForMe> getMessageByTimestamp(String x) {
         return mTextMessageForMeDao.getMessageByTimestamp(x);
     }
-    TextMessageForMe searchForTimestamp(String x){
+
+    TextMessageForMe searchForTimestamp(String x) {
         return mTextMessageForMeDao.searchForTimestamp(x);
     }
 }

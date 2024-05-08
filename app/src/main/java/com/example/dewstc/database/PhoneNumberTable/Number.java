@@ -15,6 +15,7 @@
  */
 
 package com.example.dewstc.database.PhoneNumberTable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -32,22 +33,29 @@ public class Number {
     @NonNull
     @ColumnInfo(name = "myNumber")
     private String mMyNumber;
+
     public Number(@NonNull String myNumber) {
         this.mMyNumber = myNumber;
     }
+
     /*
-    * This constructor is annotated using @Ignore, because Room expects only
-    * one constructor by default in an entity class.
-    */
+     * This constructor is annotated using @Ignore, because Room expects only
+     * one constructor by default in an entity class.
+     */
     @Ignore
     public Number(int id, @NonNull String myNumber) {
         this.id = id;
         this.mMyNumber = myNumber;
     }
+
     public String getMyNumber() {
         return this.mMyNumber;
     }
-    public int getId() {return id;}
+
+    public int getId() {
+        return id;
+    }
+
     public void setId(int id) {
         this.id = id;
     }

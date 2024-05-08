@@ -15,6 +15,7 @@
  */
 
 package com.example.dewstc.database.InboxTable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -34,10 +35,12 @@ public class TextMessageForMe {
     @NonNull
     @ColumnInfo(name = "Message")
     private String mTextMessageForMe;
-    public TextMessageForMe(@NonNull String mTimestamp, @NonNull String mTextMessageForMe){
+
+    public TextMessageForMe(@NonNull String mTimestamp, @NonNull String mTextMessageForMe) {
         this.mTimestamp = mTimestamp;
         this.mTextMessageForMe = mTextMessageForMe;
     }
+
     /*
      * This constructor is annotated using @Ignore, because Room expects only
      * one constructor by default in an entity class.
@@ -48,9 +51,19 @@ public class TextMessageForMe {
         this.mTimestamp = mTimestamp;
         this.mTextMessageForMe = mTextMessageForMe;
     }
-    public String getTextMessageForMe() {return this.mTextMessageForMe;}
-    public String getTimestamp() {return this.mTimestamp;}
-    public int getId() {return id;}
+
+    public String getTextMessageForMe() {
+        return this.mTextMessageForMe;
+    }
+
+    public String getTimestamp() {
+        return this.mTimestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     public void setId(int id) {
         this.id = id;
     }

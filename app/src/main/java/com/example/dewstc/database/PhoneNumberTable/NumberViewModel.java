@@ -17,8 +17,10 @@
 package com.example.dewstc.database.PhoneNumberTable;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+
 import java.util.List;
 
 /**
@@ -35,19 +37,24 @@ public class NumberViewModel extends AndroidViewModel {
         mRepository = new NumberRepository(application);
         mAllNumbers = mRepository.getAllNumbers();
     }
+
     public LiveData<List<Number>> getAllNumbers() {
         return mAllNumbers;
     }
+
     public void insert(Number number) {
         mRepository.insert(number);
     }
+
     public void deleteAll() {
         mRepository.deleteAll();
     }
+
     public void update(Number number) {
         mRepository.update(number);
     }
-    public Number getMyNumber(){
+
+    public Number getMyNumber() {
         return mRepository.getMyNumber();
     }
 }

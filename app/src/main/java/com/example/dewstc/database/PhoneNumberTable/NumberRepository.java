@@ -15,10 +15,15 @@
  */
 
 package com.example.dewstc.database.PhoneNumberTable;
+
 import android.app.Application;
+
 import androidx.lifecycle.LiveData;
+
 import android.os.AsyncTask;
+
 import com.example.dewstc.database.RoomDatabase;
+
 import java.util.List;
 
 /**
@@ -51,10 +56,12 @@ public class NumberRepository {
     public void insert(Number number) {
         new insertAsyncTask(mNumberDao).execute(number);
     }
-    public void update(Number number)  {
+
+    public void update(Number number) {
         new updateNumberAsyncTask(mNumberDao).execute(number);
     }
-    public void deleteAll()  {
+
+    public void deleteAll() {
         new deleteAllNumbersAsyncTask(mNumberDao).execute();
     }
 
@@ -96,10 +103,11 @@ public class NumberRepository {
     }
 
     /**
-     *  Updates a number in the database.
+     * Updates a number in the database.
      */
     private static class updateNumberAsyncTask extends AsyncTask<Number, Void, Void> {
         private NumberDao mAsyncTaskNumberDao;
+
         updateNumberAsyncTask(NumberDao numberDao) {
             mAsyncTaskNumberDao = numberDao;
         }
@@ -110,7 +118,8 @@ public class NumberRepository {
             return null;
         }
     }
-    Number getMyNumber(){
+
+    Number getMyNumber() {
         return mNumberDao.getMyNumber();
     }
 }

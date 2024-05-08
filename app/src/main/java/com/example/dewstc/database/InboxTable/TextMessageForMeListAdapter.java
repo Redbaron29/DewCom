@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 package com.example.dewstc.database.InboxTable;
+
 import android.content.Context;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.example.dewstc.R;
+
 import java.util.List;
+
 /**
  * Adapter for the RecyclerView that displays a list of messages.
  */
@@ -31,6 +37,7 @@ public class TextMessageForMeListAdapter extends RecyclerView.Adapter<TextMessag
     private final LayoutInflater mInflater;
     private List<TextMessageForMe> mTextMessages; // Cached copy of messages
     private static ClickListener clickListener;
+
     public TextMessageForMeListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
     }

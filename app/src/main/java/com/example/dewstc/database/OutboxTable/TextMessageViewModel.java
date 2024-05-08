@@ -17,8 +17,10 @@
 package com.example.dewstc.database.OutboxTable;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+
 import java.util.List;
 
 /**
@@ -35,38 +37,48 @@ public class TextMessageViewModel extends AndroidViewModel {
         mRepository = new TextMessageRepository(application);
         mAllMessages = mRepository.getAllTextMessages();
     }
+
     public LiveData<List<TextMessage>> getAllTextMessages() {
         return mAllMessages;
     }
+
     public void insert(TextMessage textMessage) {
         mRepository.insert(textMessage);
     }
+
     public void deleteAll() {
         mRepository.deleteAll();
     }
+
     public void deleteMessage(TextMessage textMessage) {
         mRepository.deleteMessage(textMessage);
     }
+
     public void update(TextMessage textMessage) {
         mRepository.update(textMessage);
     }
-    public TextMessage getMyLatestMessage(){
+
+    public TextMessage getMyLatestMessage() {
         return mRepository.getMyLatestMessage();
     }
-    public TextMessage getMyEarliestMessage(){
+
+    public TextMessage getMyEarliestMessage() {
         return mRepository.getMyEarliestMessage();
     }
 
     public LiveData<List<TextMessage>> searchTimes(String timestamp) {
         return mRepository.searchTimes(timestamp);
     }
+
     public LiveData<TextMessage> getMessageByTimestamp(String timestamp) {
         return mRepository.getMessageByTimestamp(timestamp);
     }
+
     public boolean isTableEmpty() {
         return mRepository.isTableEmpty();
     }
-    public TextMessage searchForTimestamp(String x){
+
+    public TextMessage searchForTimestamp(String x) {
         return mRepository.searchForTimestamp(x);
     }
 }

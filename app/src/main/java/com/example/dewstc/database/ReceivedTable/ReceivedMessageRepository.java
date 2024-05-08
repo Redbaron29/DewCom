@@ -18,8 +18,11 @@ package com.example.dewstc.database.ReceivedTable;
 
 import android.app.Application;
 import android.os.AsyncTask;
+
 import androidx.lifecycle.LiveData;
+
 import com.example.dewstc.database.RoomDatabase;
+
 import java.util.List;
 
 /**
@@ -53,15 +56,16 @@ public class ReceivedMessageRepository {
         new insertAsyncTask(mReceivedMessageDao).execute(receivedMessage);
     }
 
-    public void update(ReceivedMessage receivedMessage)  {
+    public void update(ReceivedMessage receivedMessage) {
         new updateMessageAsyncTask(mReceivedMessageDao).execute(receivedMessage);
     }
-    public void deleteAll()  {
+
+    public void deleteAll() {
         new deleteAllMessagesAsyncTask(mReceivedMessageDao).execute();
     }
     // Must run off main thread
 
-    public boolean isTableEmpty()  {
+    public boolean isTableEmpty() {
         return mReceivedMessageDao.getCount() == 0;
     }
 
@@ -103,7 +107,7 @@ public class ReceivedMessageRepository {
     }
 
     /**
-     *  Deletes a single message from the database.
+     * Deletes a single message from the database.
      */
     private static class deleteMessageAsyncTask extends AsyncTask<ReceivedMessage, Void, Void> {
         private ReceivedMessageDao mAsyncTaskReceivedMessageDao;
@@ -120,10 +124,11 @@ public class ReceivedMessageRepository {
     }
 
     /**
-     *  Updates a message in the database.
+     * Updates a message in the database.
      */
     private static class updateMessageAsyncTask extends AsyncTask<ReceivedMessage, Void, Void> {
         private ReceivedMessageDao mAsyncTaskReceivedMessageDao;
+
         updateMessageAsyncTask(ReceivedMessageDao receivedMessageDao) {
             mAsyncTaskReceivedMessageDao = receivedMessageDao;
         }
@@ -135,11 +140,11 @@ public class ReceivedMessageRepository {
         }
     }
 
-    public LiveData<List<ReceivedMessage>> searchTimes(String x){
+    public LiveData<List<ReceivedMessage>> searchTimes(String x) {
         return mReceivedMessageDao.searchTimes(x);
     }
 
-    ReceivedMessage searchForTimestamp(String x){
+    ReceivedMessage searchForTimestamp(String x) {
         return mReceivedMessageDao.searchForTimestamp(x);
     }
 }

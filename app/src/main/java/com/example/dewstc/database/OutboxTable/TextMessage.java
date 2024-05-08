@@ -15,6 +15,7 @@
  */
 
 package com.example.dewstc.database.OutboxTable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -35,7 +36,7 @@ public class TextMessage {
     @ColumnInfo(name = "Message")
     private String mTextMessage;
 
-    public TextMessage(@NonNull String mTimestamp, @NonNull String mTextMessage){
+    public TextMessage(@NonNull String mTimestamp, @NonNull String mTextMessage) {
         this.mTimestamp = mTimestamp;
         this.mTextMessage = mTextMessage;
     }
@@ -50,9 +51,19 @@ public class TextMessage {
         this.mTimestamp = mTimestamp;
         this.mTextMessage = mTextMessage;
     }
-    public String getTextMessage() {return this.mTextMessage;}
-    public String getTimestamp() {return this.mTimestamp;}
-    public int getId() {return id;}
+
+    public String getTextMessage() {
+        return this.mTextMessage;
+    }
+
+    public String getTimestamp() {
+        return this.mTimestamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
     public void setId(int id) {
         this.id = id;
     }

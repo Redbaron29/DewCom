@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 package com.example.dewstc.database.PhoneNumberTable;
+
 import android.content.Context;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.example.dewstc.R;
+
 import java.util.List;
+
 /**
  * Adapter for the RecyclerView that displays a list of numbers.
  */
@@ -31,6 +37,7 @@ public class NumberListAdapter extends RecyclerView.Adapter<NumberListAdapter.Ro
     private final LayoutInflater mInflater;
     private List<Number> mNumbers; // Cached copy of numbers
     private static ClickListener clickListener;
+
     public NumberListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
     }

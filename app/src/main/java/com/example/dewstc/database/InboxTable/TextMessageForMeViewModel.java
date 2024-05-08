@@ -17,6 +17,7 @@
 package com.example.dewstc.database.InboxTable;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
@@ -36,34 +37,44 @@ public class TextMessageForMeViewModel extends AndroidViewModel {
         mRepositoryForMe = new TextMessageForMeRepository(application);
         mAllMessagesForMe = mRepositoryForMe.getAllTextMessagesForMe();
     }
+
     public LiveData<List<TextMessageForMe>> getAllTextMessagesForMe() {
         return mAllMessagesForMe;
     }
+
     public void insert(TextMessageForMe textMessageForMe) {
         mRepositoryForMe.insert(textMessageForMe);
     }
+
     public void deleteAll() {
         mRepositoryForMe.deleteAll();
     }
+
     public void deleteMessage(TextMessageForMe textMessageForMe) {
         mRepositoryForMe.deleteMessage(textMessageForMe);
     }
+
     public void update(TextMessageForMe textMessageForMe) {
         mRepositoryForMe.update(textMessageForMe);
     }
-    public TextMessageForMe getMyLatestMessageForMe(){
+
+    public TextMessageForMe getMyLatestMessageForMe() {
         return mRepositoryForMe.getMyLatestMessageForMe();
     }
-    public TextMessageForMe getMyEarliestMessageForMe(){
+
+    public TextMessageForMe getMyEarliestMessageForMe() {
         return mRepositoryForMe.getMyEarliestMessageForMe();
     }
+
     public LiveData<List<TextMessageForMe>> searchTimes(String timestamp) {
         return mRepositoryForMe.searchTimes(timestamp);
     }
+
     public LiveData<TextMessageForMe> getMessageByTimestamp(String timestamp) {
         return mRepositoryForMe.getMessageByTimestamp(timestamp);
     }
-    public TextMessageForMe searchForTimestamp(String x){
+
+    public TextMessageForMe searchForTimestamp(String x) {
         return mRepositoryForMe.searchForTimestamp(x);
     }
 }

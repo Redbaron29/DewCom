@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         }, 0, 120000);
 
         // Schedule the server to run every day (86,400,000 milliseconds)
+        // Delete all Outbox messages ReceivedMessage timestamp entries
         Timer delete = new Timer();
         delete.schedule(new TimerTask() {
             @Override
@@ -126,10 +127,11 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
                         deleteReceivedList();
+                        deleteOutbox();
                     }
                 });
             }
-        }, 0, 86400000);
+        }, 86400000, 86400000);
 
 
         final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -220,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
             jsonObject.put("Recipient", number);
             jsonObject.put("Sender", this.selfNumber);
             jsonObject.put("Message", message);
-            jsonObject.put("CurrentHops", 1);
+            jsonObject.put("CurrentHops", 0);
             //make list of bluetooth device for hops list in JSONArray
 
         } catch (JSONException e) {
@@ -383,8 +385,8 @@ public class MainActivity extends AppCompatActivity {
                                     if (ignoreDevice != null) {
                                         receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
                                     }
-                                    //Delete this message from Outbox
-                                    textMessageViewModel.deleteMessage(sentText);
+                                    //Delete this message from Outbox (optional)
+                                    //textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
                             }
@@ -407,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
         long number = (long) jsonObject.get("Recipient");
         long senderNumber = (long) jsonObject.get("Sender");
         String ackTime = (String) jsonObject.get("Message");
+        int hops = (int) jsonObject.get("CurrentHops");
 
         //make list of timestamps, if msg already received, drop
         long time = (long) jsonObject.get("Timestamp");
@@ -437,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
             text.append((String) jsonObject.get("Message"));
             text.append("\n");
             //add message to Inbox database
+            jsonObject.put("CurrentHops", hops + 1);
             textMessageForMeViewModel.insert(new TextMessageForMe(t, jsonObject.toString()));
             //send ack back to originating sender. This will delete all pending Outbox copies that may exist
             text.append("Sending out ACK to " + senderNumber + "\n");
@@ -450,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
                 jsonObjectACK.put("Recipient", senderNumber);
                 jsonObjectACK.put("Sender", number);
                 jsonObjectACK.put("Message", t);
-                jsonObjectACK.put("CurrentHops", 1);
+                jsonObjectACK.put("CurrentHops", 0);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
@@ -462,11 +466,12 @@ public class MainActivity extends AppCompatActivity {
                 byte[] encodedJSON = android.util.Base64.encode(jsonACKText.getBytes(), android.util.Base64.DEFAULT);
                 byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
             }
+            //Put two ACK messages in Outbox (for redundancy)
+            textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
             textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
             return;
         }
         //if max hops are reached, then drop packet
-        int hops = (int) jsonObject.get("CurrentHops");
         if (Constants.MAX_HOPS == hops + 1) {
             return;
         }
@@ -554,6 +559,12 @@ public class MainActivity extends AppCompatActivity {
     public void deleteReceivedList() {
         if (!receivedMessageViewModel.isTableEmpty()) {
             receivedMessageViewModel.deleteAll();
+        }
+    }
+
+    public void deleteOutbox() {
+        if (!textMessageViewModel.isTableEmpty()) {
+            textMessageViewModel.deleteAll();
         }
     }
 

@@ -6,10 +6,11 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_MAP"
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_MAP"
         tools:ignore="ProtectedPermissions" />
 
     <application
@@ -26,22 +27,22 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".NewNumberActivity">
-        </activity>
+        <activity android:name=".NewNumberActivity"></activity>
 
-        <activity android:name=".InboxActivity"
+        <activity
+            android:name=".InboxActivity"
             android:exported="true"
-            android:label="Inbox">
-        </activity>
+            android:label="Inbox"></activity>
 
-        <activity android:name=".OutboxActivity"
+        <activity
+            android:name=".OutboxActivity"
             android:exported="true"
-            android:label="Outbox">
-        </activity>
+            android:label="Outbox"></activity>
 
     </application>
 </manifest>

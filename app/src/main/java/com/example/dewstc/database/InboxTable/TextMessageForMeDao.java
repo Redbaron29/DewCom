@@ -15,6 +15,7 @@
  */
 
 package com.example.dewstc.database.InboxTable;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Delete;
 import androidx.room.Insert;

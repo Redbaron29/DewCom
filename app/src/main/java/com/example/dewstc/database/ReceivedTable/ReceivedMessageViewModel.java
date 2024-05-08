@@ -17,8 +17,10 @@
 package com.example.dewstc.database.ReceivedTable;
 
 import android.app.Application;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+
 import java.util.List;
 
 /**
@@ -35,9 +37,11 @@ public class ReceivedMessageViewModel extends AndroidViewModel {
         mRepositoryReceivedMessage = new ReceivedMessageRepository(application);
         mAllReceivedMessages = mRepositoryReceivedMessage.getAllReceivedMessages();
     }
+
     public void insert(ReceivedMessage receivedMessage) {
         mRepositoryReceivedMessage.insert(receivedMessage);
     }
+
     public void deleteAll() {
         mRepositoryReceivedMessage.deleteAll();
     }
@@ -50,10 +54,11 @@ public class ReceivedMessageViewModel extends AndroidViewModel {
         return mRepositoryReceivedMessage.searchTimes(timestamp);
     }
 
-    public ReceivedMessage searchForTimestamp(String x){
+    public ReceivedMessage searchForTimestamp(String x) {
         return mRepositoryReceivedMessage.searchForTimestamp(x);
     }
-    public boolean isTableEmpty()  {
+
+    public boolean isTableEmpty() {
         return mRepositoryReceivedMessage.isTableEmpty();
     }
 }

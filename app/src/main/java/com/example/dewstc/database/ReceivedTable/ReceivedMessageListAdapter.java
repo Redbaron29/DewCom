@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 package com.example.dewstc.database.ReceivedTable;
+
 import android.content.Context;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.example.dewstc.R;
+
 import java.util.List;
+
 /**
  * Adapter for the RecyclerView that displays a list of messages.
  */
@@ -31,6 +37,7 @@ public class ReceivedMessageListAdapter extends RecyclerView.Adapter<ReceivedMes
     private final LayoutInflater mInflater;
     private List<ReceivedMessage> mReceivedMessages; // Cached copy of Timestamps and Addresses
     private static ClickListener clickListener;
+
     public ReceivedMessageListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
     }
