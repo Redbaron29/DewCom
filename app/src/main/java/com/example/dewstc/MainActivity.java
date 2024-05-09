@@ -334,12 +334,12 @@ public class MainActivity extends AppCompatActivity {
             TextView text = findViewById(R.id.textView11);
             long time = (long) jsonObject.get("Timestamp");
             String t = String.valueOf(time);
-            //insert ack message deletion method here
 
+            //insert ack message deletion method here
             if (receivedMessageViewModel.searchForTimestamp(t) != null) {
                 if (receivedMessageViewModel.searchForTimestamp(t).getAddress().equals(this.pairedDevices.get(deviceNumber).getAddress())) {
                     if (ignoreDevice != null) {
-                        text.append("Already sent/received this message to/from: " + ignoreDevice.getAddress() + "\nSending to next paired device\n");
+                        text.append("Already sent this message to: " + ignoreDevice.getAddress() + "\nSending to next paired device\n");
                     }
                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                     return;
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-        final TextView text = findViewById(R.id.textView11);
+        TextView text = findViewById(R.id.textView11);
         String displayText = "Sending to " + this.pairedDevices.get(deviceNumber).toString() + "\n";
         text.append(displayText);
         Handler clientHandler = new Handler(Looper.getMainLooper()) {
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
                                         receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
                                     }
                                     //Delete this message from Outbox (optional)
-                                    //textMessageViewModel.deleteMessage(sentText);
+                                    textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
                             }
@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         //Check if the ack timestamp already exists in Received table
         if (receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
             text.append("ACK received. Deleting Outbox message copies\n");
-            if (textMessageViewModel.searchForTimestamp(ackTime) != null) {
+            while (textMessageViewModel.searchForTimestamp(ackTime) != null) {
                 TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
                 textMessageViewModel.deleteMessage(ackMessage);
                 text.append("Message copies DELETED\n");
@@ -466,9 +466,10 @@ public class MainActivity extends AppCompatActivity {
                 byte[] encodedJSON = android.util.Base64.encode(jsonACKText.getBytes(), android.util.Base64.DEFAULT);
                 byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
             }
-            //Put two ACK messages in Outbox (for redundancy)
+            //Put two ACK messages in Outbox (for redundancy) and try to rebroadcast right away
             textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
             textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
+            startClient(jsonObjectACK, 0, 0, null);
             return;
         }
         //if max hops are reached, then drop packet
@@ -547,6 +548,8 @@ public class MainActivity extends AppCompatActivity {
     public void sendPendingMessages() {
         if (!textMessageViewModel.isTableEmpty()) {
             try {
+                TextView text = findViewById(R.id.textView11);
+                text.append("AUTO-SEND MESSAGES INITIALIZED\n");
                 JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyLatestMessage().getTextMessage());
                 startClient(jsonObject1, 0, 0, null);
 
