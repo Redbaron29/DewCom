@@ -382,10 +382,10 @@ public class MainActivity extends AppCompatActivity {
                                     text.append("Message sent successfully\n");
                                     TextMessage sentText = textMessageViewModel.getMyEarliestMessage();
                                     String g = sentText.getTimestamp();
-                                    //Add sent message to ReceivedMessages to ensure copies of messages are not resent to same address
-                                    if (ignoreDevice != null) {
-                                        receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
-                                    }
+                                    //Adds a new version of the message to Outbox (last in line)
+                                    textMessageViewModel.insert(new TextMessage(g, jsonObject.toString()));
+                                    //deletes the earliest version of the message (reorganizes queue)
+                                    textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
                             }
@@ -409,6 +409,7 @@ public class MainActivity extends AppCompatActivity {
         long senderNumber = (long) jsonObject.get("Sender");
         String ackTime = (String) jsonObject.get("Message");
         int hops = (int) jsonObject.get("CurrentHops");
+        String senderAddress = receivedDevice.getAddress();
 
         //make list of timestamps, if msg already received, drop
         long time = (long) jsonObject.get("Timestamp");
@@ -422,23 +423,39 @@ public class MainActivity extends AppCompatActivity {
                 textMessageViewModel.deleteMessage(duplicateMessages);
                 text.append("Duplicate message copies DELETED\n");
             }
-            //Delete all messages in case of duplicates, but then re-add the message so it remains in table
-            textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
-            return;
-        }
-        //Check if the ack timestamp already exists in Received table
-        if (receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
-            text.append("ACK received from " + senderNumber + ".\nDeleting Outbox message copies\n");
-            while (textMessageViewModel.searchForTimestamp(ackTime) != null) {
-                TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
-                textMessageViewModel.deleteMessage(ackMessage);
-                text.append("Message copies DELETED\n");
+            if (textMessageForMeViewModel.searchForTimestamp(t) == null) {
+                //Delete all messages in case of duplicates, but then re-add the message so it remains in table
+                textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
             }
             return;
         }
-        String senderAddress = receivedDevice.getAddress();
-        receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
-        receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
+        //If this is the first time receiving this message (ACK or original) add it to outbox.
+        else {
+            receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+        }
+
+
+        //Check if the ack timestamp already exists in Received table
+        //I might only need to verify ackTime is a number if I want to add it to table
+        if (isNumber(ackTime)) {
+            if (receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
+                text.append("ACK received from " + senderNumber + ".\nDeleting Outbox message copies\n");
+                while (textMessageViewModel.searchForTimestamp(ackTime) != null) {
+                    TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
+                    TextMessage ogMessage = textMessageViewModel.searchForTimestamp(t);
+                    textMessageViewModel.deleteMessage(ackMessage);
+                    textMessageViewModel.deleteMessage(ogMessage);
+                    text.append("Message ACK copy DELETED\n");
+                }
+                return;
+            }
+            //If this is the first time receiving this message (ACK or original) add it to outbox.
+            else {
+                receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
+                textMessageViewModel.insert(new TextMessage(ackTime, jsonObject.toString()));
+            }
+        }
+
         text.append("Added new message from " + senderAddress + " to received_messages table\n");
         //if you are intended recipient, do not broadcast further
         if (Long.toString(number).equals(Long.toString(this.selfNumber))) {
@@ -614,6 +631,7 @@ public class MainActivity extends AppCompatActivity {
             bluetoothAdapter.cancelDiscovery();
         }
         boolean flag = bluetoothAdapter.startDiscovery();
+        bluetoothAdapter.startDiscovery();
         //if discovery failed to start, show toast message
         if (!flag) {
             Toast toast = Toast.makeText(getApplicationContext(), "Discovery failed: Please make sure Bluetooth and Location are on before retrying.", Toast.LENGTH_LONG);
@@ -850,9 +868,19 @@ public class MainActivity extends AppCompatActivity {
         if (!this.pairedDevices.contains(device)) {
             this.pairedDevices.add(device);
             TextView text = findViewById(R.id.textView11);
-            text.append("Paired device added to list...");
-            text.append("\n");
+            text.append("Paired device added to list...\n");
         }
+    }
+
+    boolean isNumber(String s) {
+        try {
+            Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        TextView text = findViewById(R.id.textView11);
+        text.append("Received Message is an ACK\n");
+        return true;
     }
 
 }
