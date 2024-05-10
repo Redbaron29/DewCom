@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         }, 120000, 120000);
 
         // Schedule the server to run every day (86,400,000 milliseconds)
-        // Delete all Outbox messages ReceivedMessage timestamp entries
+        // Delete all Outbox messages, ReceivedMessage timestamp entries
         Timer delete = new Timer();
         delete.schedule(new TimerTask() {
             @Override
@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
             return;
         }
+        //check if user did not enter a number of copies (default is two)
         if (copy.equals("")) {
             Toast toast = Toast.makeText(getApplicationContext(), "Please enter the number of copies", Toast.LENGTH_SHORT);
             toast.show();
@@ -385,8 +386,6 @@ public class MainActivity extends AppCompatActivity {
                                     if (ignoreDevice != null) {
                                         receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
                                     }
-                                    //Delete this message from Outbox (optional)
-                                    textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
                             }
@@ -418,11 +417,18 @@ public class MainActivity extends AppCompatActivity {
         //Check if the timestamp already exists in Received table
         if (receivedMessageViewModel.searchForTimestamp(t) != null) {
             text.append("Already received, dropping\n");
+            while (textMessageViewModel.searchForTimestamp(t) != null) {
+                TextMessage duplicateMessages = textMessageViewModel.searchForTimestamp(t);
+                textMessageViewModel.deleteMessage(duplicateMessages);
+                text.append("Duplicate message copies DELETED\n");
+            }
+            //Delete all messages in case of duplicates, but then re-add the message so it remains in table
+            textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
             return;
         }
         //Check if the ack timestamp already exists in Received table
         if (receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
-            text.append("ACK received. Deleting Outbox message copies\n");
+            text.append("ACK received from " + senderNumber + ".\nDeleting Outbox message copies\n");
             while (textMessageViewModel.searchForTimestamp(ackTime) != null) {
                 TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
                 textMessageViewModel.deleteMessage(ackMessage);
@@ -459,15 +465,7 @@ public class MainActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
             String jsonACKText = jsonObjectACK.toString();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                byte[] encodedJSON = Base64.getEncoder().encode(jsonACKText.getBytes());
-                byte[] decodedJSON = Base64.getDecoder().decode(encodedJSON);
-            } else {
-                byte[] encodedJSON = android.util.Base64.encode(jsonACKText.getBytes(), android.util.Base64.DEFAULT);
-                byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
-            }
-            //Put two ACK messages in Outbox (for redundancy) and try to rebroadcast right away
-            textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
+            //Put an ACK message in Outbox and rebroadcast right away
             textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
             startClient(jsonObjectACK, 0, 0, null);
             return;
@@ -616,7 +614,6 @@ public class MainActivity extends AppCompatActivity {
             bluetoothAdapter.cancelDiscovery();
         }
         boolean flag = bluetoothAdapter.startDiscovery();
-        //bluetoothAdapter.startDiscovery();
         //if discovery failed to start, show toast message
         if (!flag) {
             Toast toast = Toast.makeText(getApplicationContext(), "Discovery failed: Please make sure Bluetooth and Location are on before retrying.", Toast.LENGTH_LONG);
