@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
             long time = (long) jsonObject.get("Timestamp");
             String t = String.valueOf(time);
 
-            //insert ack message deletion method here
+            //insert ack message detection method here
             if (receivedMessageViewModel.searchForTimestamp(t) != null) {
                 if (receivedMessageViewModel.searchForTimestamp(t).getAddress().equals(this.pairedDevices.get(deviceNumber).getAddress())) {
                     if (ignoreDevice != null) {
@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
                                     startClient(jsonObject, deviceNumber, attemptNumber + 1, ignoreDevice);
                                 } else {
                                     text.append("Message sent successfully\n");
-                                    TextMessage sentText = textMessageViewModel.getMyLatestMessage();
+                                    TextMessage sentText = textMessageViewModel.getMyEarliestMessage();
                                     String g = sentText.getTimestamp();
                                     //Add sent message to ReceivedMessages to ensure copies of messages are not resent to same address
                                     if (ignoreDevice != null) {
@@ -548,7 +548,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 TextView text = findViewById(R.id.textView11);
                 text.append("AUTO-SEND MESSAGES INITIALIZED\n");
-                JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyLatestMessage().getTextMessage());
+                JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyEarliestMessage().getTextMessage());
                 startClient(jsonObject1, 0, 0, null);
 
             } catch (JSONException err) {
