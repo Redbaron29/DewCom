@@ -69,4 +69,13 @@ public interface TextMessageDao {
 
     @Query("SELECT COUNT(*) FROM message_table")
     int getCount();
+
+    @Query("SELECT Timestamp FROM message_table GROUP BY Timestamp HAVING COUNT(*) > 1")
+    List<String> findDuplicateColumnValues();
+
+    @Query("SELECT id FROM message_table WHERE Timestamp = :value")
+    List<Long> findIdsByColumnValue(String value);
+
+    @Query("DELETE FROM message_table WHERE id IN (:ids)")
+    void deleteDuplicatesByIds(List<Long> ids);
 }

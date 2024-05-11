@@ -19,6 +19,7 @@ package com.example.dewstc.database.OutboxTable;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.Query;
 
 import android.os.AsyncTask;
 
@@ -69,6 +70,9 @@ public class TextMessageRepository {
     // Must run off main thread
     public void deleteMessage(TextMessage textMessage) {
         new deleteMessageAsyncTask(mTextMessageDao).execute(textMessage);
+    }
+    public void deleteDuplicateColumnValuesAsync() {
+        new DeleteDuplicatesAsyncTask(mTextMessageDao).execute();
     }
 
     // Static inner classes below here to run database interactions in the background.
@@ -126,6 +130,28 @@ public class TextMessageRepository {
     }
 
     /**
+     * Deletes duplicate messages from the database.
+     */
+
+    private static class DeleteDuplicatesAsyncTask extends AsyncTask<Void, Void, Void> {
+        private TextMessageDao mAsyncTaskTextMessageDao;
+
+        public DeleteDuplicatesAsyncTask(TextMessageDao mAsyncTaskTextMessageDao) {
+            this.mAsyncTaskTextMessageDao = mAsyncTaskTextMessageDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            List<String> duplicateValues = mAsyncTaskTextMessageDao.findDuplicateColumnValues();
+            for (String value : duplicateValues) {
+                List<Long> ids = mAsyncTaskTextMessageDao.findIdsByColumnValue(value);
+                mAsyncTaskTextMessageDao.deleteDuplicatesByIds(ids);
+            }
+            return null;
+        }
+    }
+
+    /**
      * Updates a message in the database.
      */
     private static class updateMessageAsyncTask extends AsyncTask<TextMessage, Void, Void> {
@@ -162,7 +188,16 @@ public class TextMessageRepository {
         return mTextMessageDao.getCount() == 0;
     }
 
-    TextMessage searchForTimestamp(String x) {
+    public TextMessage searchForTimestamp(String x) {
         return mTextMessageDao.searchForTimestamp(x);
     }
+
+    public List<String> findDuplicateColumnValues() {
+        return mTextMessageDao.findDuplicateColumnValues();
+    }
+
+    public List<Long> findIdsByColumnValue(String value) {
+        return mTextMessageDao.findIdsByColumnValue(value);
+    }
+
 }

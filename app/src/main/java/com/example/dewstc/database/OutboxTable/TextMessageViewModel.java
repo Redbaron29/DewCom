@@ -81,4 +81,16 @@ public class TextMessageViewModel extends AndroidViewModel {
     public TextMessage searchForTimestamp(String x) {
         return mRepository.searchForTimestamp(x);
     }
+
+    public List<String> findDuplicateColumnValues() {
+        return mRepository.findDuplicateColumnValues();
+    }
+
+    public List<Long> findIdsByColumnValue(String value) {
+        return mRepository.findIdsByColumnValue(value);
+    }
+
+    public void deleteDuplicatesByIds(List<Long> ids) {
+        mRepository.deleteDuplicateColumnValuesAsync();
+    }
 }
