@@ -502,7 +502,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear(View view) {
-        rotateMessages();
         triggerRestart(MainActivity.this);
     }
 
