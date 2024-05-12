@@ -502,6 +502,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear(View view) {
+        if (!textMessageViewModel.isTableEmpty()) {
+            rotateMessages();
+        }
         triggerRestart(MainActivity.this);
     }
 
