@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     int REQUEST_ENABLE_BT;
     BluetoothServer serverThread;
     Boolean connection = false;
+    Boolean thisIsAnACK = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
         //get values from user input
         EditText text = findViewById(R.id.editText2);
         String number_text = text.getText().toString();
-        EditText copies = findViewById(R.id.editText22);
-        String copy = copies.getText().toString();
         //check for 10 digits
         if (number_text.length() != 10) {
             Toast toast = Toast.makeText(getApplicationContext(), "Phone Number must be 10 digits", Toast.LENGTH_SHORT);
@@ -193,12 +193,7 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
             return;
         }
-        if (copy.equals("")) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Please enter the number of copies", Toast.LENGTH_SHORT);
-            toast.show();
-            return;
-        }
-        int copy_number = Integer.parseInt(copy);
+
         long number = Long.parseLong(number_text);
         text = findViewById(R.id.editText3);
         String message = text.getText().toString();
@@ -239,15 +234,9 @@ public class MainActivity extends AppCompatActivity {
             byte[] encodedJSON = android.util.Base64.encode(jsonText.getBytes(), android.util.Base64.DEFAULT);
             byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
         }
-        //Save timestamp to receivedMessages table so it does not return
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        String macAddress = bluetoothAdapter.getAddress();
-        receivedMessageViewModel.insert(new ReceivedMessage(t, macAddress));
 
-        //Save to Outbox X times for redundancy. This means it will send out the message to every paired nodes X times.
-        for (int i = 0; i < copy_number; ++i) {
-            textMessageViewModel.insert(new TextMessage(t, jsonText));
-        }
+        textMessageViewModel.insert(new TextMessage(t, jsonText));
+        receivedMessageViewModel.insert(new ReceivedMessage(t, jsonText));
 
         //Send message out to devices
         text11.append("Sending message to available paired devices\n");
@@ -320,38 +309,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void startClient(final JSONObject jsonObject, final int deviceNumber, final int attemptNumber, final BluetoothDevice ignoreDevice) {
         int len = this.pairedDevices.size();
-        if (deviceNumber >= len)
+        if (deviceNumber >= len) {
             return;
-        if (attemptNumber >= Constants.MAX_ATTEMPTS)
+        }
+        if (attemptNumber >= Constants.MAX_ATTEMPTS) {
             return;
+        }
         if (ignoreDevice != null && this.pairedDevices.get(deviceNumber).getAddress().equals(ignoreDevice.getAddress())) {
             startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
             return;
         }
-        //if this message's original sender = the same sender from a message we received earlier,
-        //skip sending it back to them and instead send it to next paired devices.
-        try {
-            TextView text = findViewById(R.id.textView11);
-            long time = (long) jsonObject.get("Timestamp");
-            String t = String.valueOf(time);
-            //insert ack message detection method here
-
-            if (receivedMessageViewModel.searchForTimestamp(t) != null) {
-                if (receivedMessageViewModel.searchForTimestamp(t).getAddress().equals(this.pairedDevices.get(deviceNumber).getAddress())) {
-                    if (ignoreDevice != null) {
-                        text.append("Already sent/received this message to/from: " + ignoreDevice.getAddress() + "\nSending to next paired device\n");
-                    }
-                    startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
-                    return;
-                }
-            } else {
-                text.append("Timestamp does not exist in received_messages table\nSending message\n");
-            }
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        final TextView text = findViewById(R.id.textView11);
+        TextView text = findViewById(R.id.textView11);
         String displayText = "Sending to " + this.pairedDevices.get(deviceNumber).toString() + "\n";
         text.append(displayText);
         Handler clientHandler = new Handler(Looper.getMainLooper()) {
@@ -379,14 +347,6 @@ public class MainActivity extends AppCompatActivity {
                                     startClient(jsonObject, deviceNumber, attemptNumber + 1, ignoreDevice);
                                 } else {
                                     text.append("Message sent successfully\n");
-                                    TextMessage sentText = textMessageViewModel.getMyLatestMessage();
-                                    String g = sentText.getTimestamp();
-                                    //Add sent message to ReceivedMessages to ensure copies of messages are not resent to same address
-                                    if (ignoreDevice != null) {
-                                        receivedMessageViewModel.insert(new ReceivedMessage(g, ignoreDevice.getAddress()));
-                                    }
-                                    //Delete this message from Outbox (optional)
-                                    //textMessageViewModel.deleteMessage(sentText);
                                     startClient(jsonObject, deviceNumber + 1, 0, ignoreDevice);
                                 }
                             }
@@ -408,40 +368,50 @@ public class MainActivity extends AppCompatActivity {
         final TextView text = findViewById(R.id.textView11);
         long number = (long) jsonObject.get("Recipient");
         long senderNumber = (long) jsonObject.get("Sender");
-        String ackTime = (String) jsonObject.get("Message");
         int hops = (int) jsonObject.get("CurrentHops");
+        String senderAddress = receivedDevice.getAddress();
+        String ackTime = (String) jsonObject.get("Message");
+        if (isNumber(ackTime)) {
+            thisIsAnACK = true;
+        }
 
-        //make list of timestamps, if msg already received, drop
+        //Check if msg already received, if so drop
         long time = (long) jsonObject.get("Timestamp");
         String t = String.valueOf(time);
 
         //Check if the timestamp already exists in Received table
         if (receivedMessageViewModel.searchForTimestamp(t) != null) {
             text.append("Already received, dropping\n");
+            thisIsAnACK = false;
             return;
         }
-        //Check if the ack timestamp already exists in Received table
-        if (receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
-            text.append("ACK received. Deleting Outbox message copies\n");
-            if (textMessageViewModel.searchForTimestamp(ackTime) != null) {
-                TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
-                textMessageViewModel.deleteMessage(ackMessage);
-                text.append("Message copies DELETED\n");
-            }
-            return;
-        }
-        String senderAddress = receivedDevice.getAddress();
-        receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
-        receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
-        text.append("Added new message from " + senderAddress + " to received_messages table\n");
-        //if you are intended recipient, do not broadcast further
+        //Check if you are intended recipient
         if (Long.toString(number).equals(Long.toString(this.selfNumber))) {
+            //Check if the message is an ACK
+            if (thisIsAnACK && receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
+                text.append("ACK received. Deleting my Outbox message copy\n");
+                if (textMessageViewModel.searchForTimestamp(ackTime) != null) {
+                    TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
+                    textMessageViewModel.deleteMessage(ackMessage);
+                    text.append("Original message DELETED from Outbox\n");
+                    //Add this ACK message to my Inbox for user reference
+                    textMessageForMeViewModel.insert(new TextMessageForMe(t, jsonObject.toString()));
+                    //Add this ACK message to my Outbox to let others know to drop my OG message
+                    textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
+                    receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+                    receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
+                }
+                thisIsAnACK = false;
+                return;
+            }
             text.append("You are the intended recipient\n");
             text.append((String) jsonObject.get("Message"));
             text.append("\n");
             //add message to Inbox database
             jsonObject.put("CurrentHops", hops + 1);
             textMessageForMeViewModel.insert(new TextMessageForMe(t, jsonObject.toString()));
+            receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+
             //send ack back to originating sender. This will delete all pending Outbox copies that may exist
             text.append("Sending out ACK to " + senderNumber + "\n");
             Timestamp timestamp1 = new Timestamp(System.currentTimeMillis());
@@ -466,20 +436,49 @@ public class MainActivity extends AppCompatActivity {
                 byte[] encodedJSON = android.util.Base64.encode(jsonACKText.getBytes(), android.util.Base64.DEFAULT);
                 byte[] decodedJSON = android.util.Base64.decode(encodedJSON, android.util.Base64.DEFAULT);
             }
-            //Put two ACK messages in Outbox (for redundancy)
+            //Put ACK message in Outbox
             textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
-            textMessageViewModel.insert(new TextMessage(newTimestamp, jsonACKText));
+            //Put ACK in Received Table so I don't get it again
+            receivedMessageViewModel.insert(new ReceivedMessage(newTimestamp, senderAddress));
+            thisIsAnACK = false;
+            startClient(jsonObjectACK, 0, 0, null);
             return;
         }
+
+        //Check if the message is an ACK
+        if (thisIsAnACK && receivedMessageViewModel.searchForTimestamp(ackTime) != null) {
+            text.append("ACK received. Deleting this other user's Outbox message copy\n");
+            if (textMessageViewModel.searchForTimestamp(ackTime) != null) {
+                TextMessage ackMessage = textMessageViewModel.searchForTimestamp(ackTime);
+                textMessageViewModel.deleteMessage(ackMessage);
+                text.append("User's original message DELETED from Outbox\n");
+                //Add this ACK message to my Outbox to let others know to drop this user's message
+                textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
+                receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+            }
+            thisIsAnACK = false;
+            receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
+            startClient(jsonObject, 0, 0, receivedDevice);
+            return;
+        }
+        receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
+        if (thisIsAnACK) {
+            receivedMessageViewModel.insert(new ReceivedMessage(ackTime, senderAddress));
+        }
+        text.append("Added new message from " + senderAddress + " to received_messages table\n");
+
         //if max hops are reached, then drop packet
         if (Constants.MAX_HOPS == hops + 1) {
+            thisIsAnACK = false;
             return;
         }
         //otherwise increment current hops by 1 and add to Outbox
         jsonObject.put("CurrentHops", hops + 1);
         textMessageViewModel.insert(new TextMessage(t, jsonObject.toString()));
+        receivedMessageViewModel.insert(new ReceivedMessage(t, senderAddress));
         //broadcast message back to network, but not back to the "receivedDevice"
         text.append("Broadcasting message back to network\n");
+        thisIsAnACK = false;
         startClient(jsonObject, 0, 0, receivedDevice);
     }
 
@@ -494,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void triggerRestart(Activity context) {
+
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
@@ -502,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clear(View view) {
+        rotateMessages();
         triggerRestart(MainActivity.this);
     }
 
@@ -546,8 +547,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendPendingMessages() {
         if (!textMessageViewModel.isTableEmpty()) {
+            deleteDuplicates();
             try {
-                JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyLatestMessage().getTextMessage());
+                rotateMessages();
+                JSONObject jsonObject1 = new JSONObject(textMessageViewModel.getMyEarliestMessage().getTextMessage());
                 startClient(jsonObject1, 0, 0, null);
 
             } catch (JSONException err) {
@@ -855,7 +858,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    boolean isNumber(String s) {
+    public boolean isNumber(String s) {
         try {
             Long.parseLong(s);
         } catch (NumberFormatException e) {
@@ -872,6 +875,14 @@ public class MainActivity extends AppCompatActivity {
             List<Long> ids = textMessageViewModel.findIdsByColumnValue(value);
             textMessageViewModel.deleteDuplicatesByIds(ids);
         }
+    }
+
+    public void rotateMessages() {
+        TextMessage oldToNew = textMessageViewModel.getMyEarliestMessage();
+        String jsonMessage = oldToNew.getTextMessage();
+        String oldMessageTimestamp = oldToNew.getTimestamp();
+        textMessageViewModel.insert(new TextMessage(oldMessageTimestamp, jsonMessage));
+        textMessageViewModel.deleteMessage(oldToNew);
     }
 
 }
