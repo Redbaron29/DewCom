@@ -25,10 +25,10 @@ Before sending your first message, please click on "Enter your phone number" and
 ![IMG_4685](https://github.com/Redbaron29/DewSTC/assets/95047781/b0d4a6ef-4f06-45ac-81fc-cb47aa6c0b15)
 
 
-Please note, this is just suppose to simulate a user's actual phone number. In the future, we aim to use the device's SIM card to extract the actual phone number.
+***Please note, this is just suppose to simulate a user's actual phone number. In the future, we aim to use the device's SIM card to extract the actual phone number.
 Also, note that some 10-digit numbers cause sporadic errors to occur. These typically come from 10 consecutive numbers like 1111111111 or 0000000000. Do not use these.
 
-Once you saved your made-up phone number, type in a 10-digit number for your recipient, enter the desired number of message copies to send out, and type in a message. Hit send. If multiple copies go through the same device, they will be dropped. This allows redundancy and the best possibility of a message being successfully received.
+Once you saved your made-up phone number, type in a 10-digit number for your recipient then your message and hit Send.
 
 ![6](https://github.com/Redbaron29/DewSTC/assets/95047781/5c980e98-b964-4579-9340-67aaf94fd53c)
 
@@ -39,18 +39,19 @@ If the message sends successfully, you will receive notice.
 ![7](https://github.com/Redbaron29/DewSTC/assets/95047781/6e45d4f1-a00a-453f-9de1-2db32157957e)
 
 
-If the recipient is not your intended recipient (by phone number), they will immediately attempt to broadcast the message to their remaining paired devices. 
-If you receive a message intended for another user, the same process occurs. If for any reason you run out of paired devices to attempt to re-broadcast to, your device will store the message in its Outbox.
+If the receiving device is not your intended recipient (by phone number), that device will save a copy to its Outbox and immediately attempt to broadcast your message to their list of paired devices. 
+If you receive a message intended for another user, the same process occurs. You will save a copy to your Outbox and immediately attempt to rebroadcast it.
 
 ![9](https://github.com/Redbaron29/DewSTC/assets/95047781/e5997141-19bd-4d68-ba7d-9f4709c0aed5)
 
 
-All successfully received messages intended for yourself will be stored in your Inbox. Upon receiving a message in your inobx, STC will create an ack "message" to send back out, with the goal of reaching the initial sender to let them know their message was successfully received.
+All successfully received messages intended for yourself will be stored in your Inbox. Upon receiving a message in your Inbox, STC will create an ack message to send back out, with the goal of reaching the initial sender to let them know their message was successfully received. This ack will rest in your Outbox and any other user's Outbox, replacing the original sent message.
+***Please note, what shall remain after successfully received messages will be an Outbox filled with ack messages which will auto-delete after 24hrs. This ensures the Outbox does not get congested. This arbitrary timer can be adjusted as necessary.
 
 ![11](https://github.com/Redbaron29/DewSTC/assets/95047781/1cf37b51-4093-4d3f-ad10-0ee7e76d0ac8)
 
 
-Please note, all Outbox messages, regardless of intended recipient, received will be visible to you. In future versions of this app, the Outbox will remain out of user's sight for security purposes.
+Please note, all Outbox messages, regardless of intended recipient, received will be visible to you. In future versions of this app, the Outbox can be divided into the visible user's pending messages and a hidden version for other users' pending messages (for security purposes).
 
 ![12](https://github.com/Redbaron29/DewSTC/assets/95047781/a61376f9-3814-426e-95ca-70b9a0326205)
 
